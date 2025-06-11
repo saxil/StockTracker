@@ -5,6 +5,12 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import warnings
+warnings.filterwarnings('ignore')
 
 # Page configuration
 st.set_page_config(
@@ -35,6 +41,30 @@ period_options = {
     "2 Years": "2y",
     "5 Years": "5y"
 }
+
+# Prediction settings
+st.sidebar.markdown("---")
+st.sidebar.header("Price Prediction")
+enable_prediction = st.sidebar.checkbox("Enable Price Prediction", value=False)
+
+prediction_days = 30
+prediction_model = "LSTM"
+
+if enable_prediction:
+    prediction_days = st.sidebar.slider(
+        "Prediction Days", 
+        min_value=7, 
+        max_value=90, 
+        value=30,
+        help="Number of days to predict into the future"
+    )
+    
+    prediction_model = st.sidebar.selectbox(
+        "Prediction Model",
+        options=["Random Forest", "Linear Regression"],
+        index=0,
+        help="Choose the machine learning model for predictions"
+    )
 
 selected_period = st.sidebar.selectbox(
     "Select Time Period",
@@ -230,6 +260,176 @@ def create_historical_data_table(hist_data):
     
     return table_data
 
+def create_features_for_prediction(data, lookback_days=60):
+    """Create features for machine learning prediction"""
+    features = []
+    targets = []
+    
+    # Use closing prices for prediction
+    prices = data['Close'].values
+    
+    for i in range(lookback_days, len(prices)):
+        features.append(prices[i-lookback_days:i])
+        targets.append(prices[i])
+    
+    return np.array(features), np.array(targets)
+
+
+
+def random_forest_prediction(hist_data, prediction_days=30):
+    """Random Forest prediction"""
+    try:
+        # Prepare features
+        data = hist_data.copy()
+        data['MA_10'] = data['Close'].rolling(window=10).mean()
+        data['MA_30'] = data['Close'].rolling(window=30).mean()
+        data['Price_Change'] = data['Close'].pct_change()
+        data['Volume_Change'] = data['Volume'].pct_change()
+        data['High_Low_Ratio'] = data['High'] / data['Low']
+        
+        # Create lag features
+        for lag in [1, 2, 3, 5, 10]:
+            data[f'Close_lag_{lag}'] = data['Close'].shift(lag)
+        
+        # Drop NaN values
+        data = data.dropna()
+        
+        if len(data) < 30:
+            st.warning("Insufficient data for Random Forest prediction.")
+            return None, None, None
+        
+        # Prepare features and target
+        feature_columns = ['Open', 'High', 'Low', 'Volume', 'MA_10', 'MA_30', 
+                          'Price_Change', 'Volume_Change', 'High_Low_Ratio'] + \
+                         [f'Close_lag_{lag}' for lag in [1, 2, 3, 5, 10]]
+        
+        X = data[feature_columns].values
+        y = data['Close'].values
+        
+        # Split data
+        train_size = int(len(X) * 0.8)
+        X_train, X_test = X[:train_size], X[train_size:]
+        y_train, y_test = y[:train_size], y[train_size:]
+        
+        # Train model
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X_train, y_train)
+        
+        # Test predictions
+        test_predictions = model.predict(X_test)
+        
+        # Calculate accuracy metrics
+        mae = mean_absolute_error(y_test, test_predictions)
+        rmse = np.sqrt(mean_squared_error(y_test, test_predictions))
+        
+        # Predict future prices
+        future_predictions = []
+        last_features = X[-1].copy()
+        
+        for day in range(prediction_days):
+            pred = model.predict([last_features])[0]
+            future_predictions.append(pred)
+            
+            # Update features for next prediction (simplified approach)
+            # In practice, you'd need actual future data for some features
+            last_features[0] = pred  # Open = previous close
+            last_features[1] = pred * 1.02  # High estimate
+            last_features[2] = pred * 0.98  # Low estimate
+            # Volume and other features remain same (simplified)
+            
+            # Update lag features
+            for i, lag in enumerate([1, 2, 3, 5, 10]):
+                if lag == 1:
+                    last_features[-(len([1, 2, 3, 5, 10])-i)] = pred
+        
+        return np.array(future_predictions), mae, rmse
+        
+    except Exception as e:
+        st.error(f"Random Forest prediction failed: {str(e)}")
+        return None, None, None
+
+def linear_regression_prediction(hist_data, prediction_days=30):
+    """Linear Regression prediction"""
+    try:
+        # Simple linear regression on time series
+        data = hist_data['Close'].values
+        X = np.arange(len(data)).reshape(-1, 1)
+        y = data
+        
+        # Split data
+        train_size = int(len(X) * 0.8)
+        X_train, X_test = X[:train_size], X[train_size:]
+        y_train, y_test = y[:train_size], y[train_size:]
+        
+        # Train model
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+        
+        # Test predictions
+        test_predictions = model.predict(X_test)
+        
+        # Calculate accuracy metrics
+        mae = mean_absolute_error(y_test, test_predictions)
+        rmse = np.sqrt(mean_squared_error(y_test, test_predictions))
+        
+        # Predict future prices
+        future_X = np.arange(len(data), len(data) + prediction_days).reshape(-1, 1)
+        future_predictions = model.predict(future_X)
+        
+        return future_predictions, mae, rmse
+        
+    except Exception as e:
+        st.error(f"Linear Regression prediction failed: {str(e)}")
+        return None, None, None
+
+def create_prediction_chart(hist_data, predictions, prediction_days, symbol, model_name):
+    """Create chart showing historical and predicted prices"""
+    fig = go.Figure()
+    
+    # Historical data
+    fig.add_trace(go.Scatter(
+        x=hist_data.index,
+        y=hist_data['Close'],
+        mode='lines',
+        name='Historical Price',
+        line=dict(color='blue')
+    ))
+    
+    # Predicted data
+    if predictions is not None:
+        last_date = hist_data.index[-1]
+        future_dates = pd.date_range(start=last_date + timedelta(days=1), periods=prediction_days)
+        
+        fig.add_trace(go.Scatter(
+            x=future_dates,
+            y=predictions,
+            mode='lines+markers',
+            name=f'{model_name} Prediction',
+            line=dict(color='red', dash='dash'),
+            marker=dict(size=4)
+        ))
+        
+        # Add connection line
+        fig.add_trace(go.Scatter(
+            x=[last_date, future_dates[0]],
+            y=[hist_data['Close'].iloc[-1], predictions[0]],
+            mode='lines',
+            name='Connection',
+            line=dict(color='red', dash='dash'),
+            showlegend=False
+        ))
+    
+    fig.update_layout(
+        title=f"{symbol} Price Prediction using {model_name}",
+        xaxis_title="Date",
+        yaxis_title="Price ($)",
+        template="plotly_white",
+        height=500,
+        hovermode='x unified'
+    )
+    
+    return fig
+
 # Main application logic
 if analyze_button or stock_symbol:
     if stock_symbol:
@@ -287,6 +487,95 @@ if analyze_button or stock_symbol:
                     )
                 else:
                     st.warning("No historical data available for display.")
+                
+                # Price Prediction Section
+                if enable_prediction and not hist_data.empty:
+                    st.subheader("🔮 Price Prediction")
+                    
+                    # Get predictions based on selected model
+                    predictions = None
+                    mae = None
+                    rmse = None
+                    
+                    if prediction_model == "Random Forest":
+                        predictions, mae, rmse = random_forest_prediction(hist_data, prediction_days)
+                    elif prediction_model == "Linear Regression":
+                        predictions, mae, rmse = linear_regression_prediction(hist_data, prediction_days)
+                    
+                    if predictions is not None:
+                        # Display prediction metrics
+                        col1, col2, col3, col4 = st.columns(4)
+                        
+                        with col1:
+                            st.metric("Model", prediction_model)
+                        with col2:
+                            st.metric("Prediction Days", prediction_days)
+                        with col3:
+                            st.metric("MAE", f"${mae:.2f}" if mae else "N/A")
+                        with col4:
+                            st.metric("RMSE", f"${rmse:.2f}" if rmse else "N/A")
+                        
+                        # Create and display prediction chart
+                        prediction_chart = create_prediction_chart(
+                            hist_data, predictions, prediction_days, stock_symbol, prediction_model
+                        )
+                        st.plotly_chart(prediction_chart, use_container_width=True)
+                        
+                        # Display prediction summary
+                        current_price = hist_data['Close'].iloc[-1]
+                        predicted_price = predictions[-1]
+                        price_change = predicted_price - current_price
+                        price_change_pct = (price_change / current_price) * 100
+                        
+                        st.markdown("### Prediction Summary")
+                        col1, col2, col3 = st.columns(3)
+                        
+                        with col1:
+                            st.metric(
+                                "Current Price", 
+                                f"${current_price:.2f}",
+                                help="Most recent closing price"
+                            )
+                        with col2:
+                            st.metric(
+                                f"Predicted Price ({prediction_days}d)", 
+                                f"${predicted_price:.2f}",
+                                delta=f"{price_change_pct:+.2f}%"
+                            )
+                        with col3:
+                            trend = "📈 Bullish" if price_change > 0 else "📉 Bearish" if price_change < 0 else "➡️ Neutral"
+                            st.metric("Trend", trend)
+                        
+                        # Create prediction data table
+                        last_date = hist_data.index[-1]
+                        future_dates = pd.date_range(start=last_date + timedelta(days=1), periods=prediction_days)
+                        
+                        prediction_df = pd.DataFrame({
+                            'Date': future_dates.strftime('%Y-%m-%d'),
+                            'Predicted Price': [f"${p:.2f}" for p in predictions]
+                        })
+                        
+                        with st.expander("View Detailed Predictions"):
+                            st.dataframe(prediction_df, use_container_width=True)
+                            
+                            # CSV download for predictions
+                            pred_csv = prediction_df.to_csv(index=False)
+                            st.download_button(
+                                label=f"Download {stock_symbol} Predictions as CSV",
+                                data=pred_csv,
+                                file_name=f"{stock_symbol}_predictions_{prediction_model.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.csv",
+                                mime="text/csv",
+                                help="Download the price predictions as a CSV file"
+                            )
+                        
+                        # Disclaimer
+                        st.warning(
+                            "⚠️ **Disclaimer**: These predictions are based on historical data and machine learning models. "
+                            "Stock prices are inherently unpredictable and subject to many external factors. "
+                            "This analysis should not be considered as financial advice. Always consult with financial professionals before making investment decisions."
+                        )
+                    else:
+                        st.error("Unable to generate predictions. Please try a different model or check if there's sufficient historical data.")
             else:
                 st.error("Failed to fetch stock data. Please try again.")
         else:
