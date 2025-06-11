@@ -5,16 +5,10 @@ from email.message import EmailMessage
 
 def email_message(subject, body, to):
     """Send email with proper error handling and security"""
-      # Get credentials from environment variables (more secure)
-    user = os.environ.get("GMAIL_EMAIL")
-    password = os.environ.get("GMAIL_APP_PASSWORD")
     
-    if not user or not password:
-        print("❌ Email credentials not found!")
-        print("Please set environment variables:")
-        print("- GMAIL_EMAIL: Your Gmail address")
-        print("- GMAIL_APP_PASSWORD: Your Gmail app password")
-        return False
+    # Get credentials from environment variables (more secure)
+    user = os.environ.get("GMAIL_EMAIL", "lucifer.ai.288@gmail.com")
+    password = os.environ.get("GMAIL_APP_PASSWORD", "mfbjcjevynjezpaz")
     
     try:
         # Create message
