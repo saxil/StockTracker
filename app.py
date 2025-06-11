@@ -655,11 +655,8 @@ else:
         if not history_df.empty:
             # Format timestamp
             history_df['Date'] = pd.to_datetime(history_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
-            history_df = history_df[['Date', 'symbol', 'analysis_type']].rename(columns={
-                'Date': 'Analysis Date',
-                'symbol': 'Stock Symbol',
-                'analysis_type': 'Analysis Type'
-            })
+            history_df = history_df[['Date', 'symbol', 'analysis_type']]
+            history_df.columns = ['Analysis Date', 'Stock Symbol', 'Analysis Type']
             
             st.dataframe(history_df, use_container_width=True)
             
