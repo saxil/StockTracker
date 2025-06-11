@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Import authentication system
-from auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile
+from auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
 
 # Page configuration
 st.set_page_config(
@@ -31,9 +31,11 @@ if not st.session_state.authenticated:
     st.title("📈 Stock Analysis Tool")
     st.markdown("**Please login or create an account to access the stock analysis features**")
     
-    # Show login or signup form based on session state
+    # Show appropriate form based on session state
     if st.session_state.show_signup:
         signup_form(auth_system)
+    elif st.session_state.show_reset:
+        password_reset_form(auth_system)
     else:
         login_form(auth_system)
     

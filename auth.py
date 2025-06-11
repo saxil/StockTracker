@@ -1,9 +1,11 @@
 import json
 import hashlib
 import os
+import secrets
+import string
 from typing import Dict, Optional
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class UserAuth:
     def __init__(self, db_file: str = "users.json"):
@@ -53,24 +55,66 @@ class UserAuth:
             'created_at': str(datetime.now()),
             'last_login': None,
             'favorite_stocks': [],
-            'analysis_history': []
+            'analysis_history': [],
+            'failed_login_attempts': 0,
+            'account_locked': False,
+            'last_failed_attempt': None,
+            'reset_token': None,
+            'reset_token_expires': None
         }
         
         self.save_users(users)
         return True, "Account created successfully"
     
     def authenticate_user(self, username: str, password: str) -> tuple[bool, str]:
-        """Authenticate user login"""
+        """Authenticate user login with attempt tracking"""
         users = self.load_users()
         
         if username not in users:
             return False, "Username not found"
         
-        if users[username]['password'] != self.hash_password(password):
-            return False, "Invalid password"
+        user = users[username]
         
-        # Update last login
-        users[username]['last_login'] = str(datetime.now())
+        # Check if account is locked
+        if user.get('account_locked', False):
+            last_attempt = user.get('last_failed_attempt')
+            if last_attempt:
+                try:
+                    last_attempt_time = datetime.fromisoformat(last_attempt)
+                    # Unlock after 30 minutes
+                    if datetime.now() - last_attempt_time > timedelta(minutes=30):
+                        user['account_locked'] = False
+                        user['failed_login_attempts'] = 0
+                        self.save_users(users)
+                    else:
+                        time_left = 30 - int((datetime.now() - last_attempt_time).total_seconds() / 60)
+                        return False, f"Account locked due to multiple failed attempts. Try again in {time_left} minutes."
+                except:
+                    # Reset if there's an issue with the timestamp
+                    user['account_locked'] = False
+                    user['failed_login_attempts'] = 0
+        
+        # Check password
+        if user['password'] != self.hash_password(password):
+            # Increment failed attempts
+            user['failed_login_attempts'] = user.get('failed_login_attempts', 0) + 1
+            user['last_failed_attempt'] = str(datetime.now())
+            
+            # Lock account after 5 failed attempts
+            if user['failed_login_attempts'] >= 5:
+                user['account_locked'] = True
+                self.save_users(users)
+                return False, "Account locked due to multiple failed login attempts. Please try again in 30 minutes or reset your password."
+            
+            self.save_users(users)
+            remaining_attempts = 5 - user['failed_login_attempts']
+            return False, f"Invalid password. {remaining_attempts} attempts remaining before account lock."
+        
+        # Successful login - reset failed attempts
+        user['failed_login_attempts'] = 0
+        user['account_locked'] = False
+        user['last_failed_attempt'] = None
+        user['last_login'] = str(datetime.now())
         self.save_users(users)
         
         return True, "Login successful"
@@ -122,6 +166,62 @@ class UserAuth:
         """Get user's analysis history"""
         users = self.load_users()
         return users.get(username, {}).get('analysis_history', [])
+    
+    def generate_reset_token(self, username: str) -> tuple[bool, str]:
+        """Generate a password reset token"""
+        users = self.load_users()
+        if username not in users:
+            return False, "Username not found"
+        
+        # Generate secure random token
+        token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32))
+        expires = datetime.now() + timedelta(hours=1)  # Token expires in 1 hour
+        
+        users[username]['reset_token'] = token
+        users[username]['reset_token_expires'] = str(expires)
+        self.save_users(users)
+        
+        return True, token
+    
+    def reset_password(self, username: str, token: str, new_password: str) -> tuple[bool, str]:
+        """Reset password using reset token"""
+        users = self.load_users()
+        if username not in users:
+            return False, "Username not found"
+        
+        user = users[username]
+        stored_token = user.get('reset_token')
+        token_expires = user.get('reset_token_expires')
+        
+        if not stored_token or stored_token != token:
+            return False, "Invalid reset token"
+        
+        if token_expires:
+            try:
+                expires_time = datetime.fromisoformat(token_expires)
+                if datetime.now() > expires_time:
+                    return False, "Reset token has expired"
+            except:
+                return False, "Invalid token expiration"
+        
+        # Reset password and clear token
+        user['password'] = self.hash_password(new_password)
+        user['reset_token'] = None
+        user['reset_token_expires'] = None
+        user['failed_login_attempts'] = 0
+        user['account_locked'] = False
+        user['last_failed_attempt'] = None
+        
+        self.save_users(users)
+        return True, "Password reset successfully"
+    
+    def find_user_by_email(self, email: str) -> Optional[str]:
+        """Find username by email address"""
+        users = self.load_users()
+        for username, user_data in users.items():
+            if user_data.get('email') == email:
+                return username
+        return None
 
 def init_session_state():
     """Initialize session state variables"""
@@ -131,6 +231,10 @@ def init_session_state():
         st.session_state.username = None
     if 'show_signup' not in st.session_state:
         st.session_state.show_signup = False
+    if 'show_reset' not in st.session_state:
+        st.session_state.show_reset = False
+    if 'reset_step' not in st.session_state:
+        st.session_state.reset_step = 'email'  # email, token, password
 
 def login_form(auth_system: UserAuth):
     """Display login form"""
@@ -155,9 +259,18 @@ def login_form(auth_system: UserAuth):
                 st.error("Please enter both username and password")
     
     st.markdown("---")
-    if st.button("Don't have an account? Sign up"):
-        st.session_state.show_signup = True
-        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Don't have an account? Sign up"):
+            st.session_state.show_signup = True
+            st.session_state.show_reset = False
+            st.rerun()
+    with col2:
+        if st.button("Forgot Password?"):
+            st.session_state.show_reset = True
+            st.session_state.show_signup = False
+            st.session_state.reset_step = 'email'
+            st.rerun()
 
 def signup_form(auth_system: UserAuth):
     """Display signup form"""
@@ -191,6 +304,7 @@ def signup_form(auth_system: UserAuth):
     st.markdown("---")
     if st.button("Already have an account? Login"):
         st.session_state.show_signup = False
+        st.session_state.show_reset = False
         st.rerun()
 
 def logout():
@@ -218,3 +332,78 @@ def show_user_profile(auth_system: UserAuth):
         
         if st.sidebar.button("Logout", type="secondary"):
             logout()
+
+def password_reset_form(auth_system: UserAuth):
+    """Display password reset form"""
+    st.subheader("Reset Password")
+    
+    if st.session_state.reset_step == 'email':
+        st.write("Enter your email address to receive a password reset token.")
+        
+        with st.form("reset_email_form"):
+            email = st.text_input("Email Address")
+            submit_button = st.form_submit_button("Send Reset Token")
+            
+            if submit_button:
+                if email:
+                    username = auth_system.find_user_by_email(email)
+                    if username:
+                        success, token = auth_system.generate_reset_token(username)
+                        if success:
+                            st.success("Reset token generated successfully!")
+                            st.info(f"Your reset token is: **{token}**")
+                            st.warning("Copy this token - you'll need it in the next step. In a real application, this would be sent to your email.")
+                            st.session_state.reset_username = username
+                            st.session_state.reset_step = 'token'
+                            st.rerun()
+                        else:
+                            st.error("Error generating reset token")
+                    else:
+                        st.error("No account found with this email address")
+                else:
+                    st.error("Please enter your email address")
+    
+    elif st.session_state.reset_step == 'token':
+        st.write("Enter the reset token and your new password.")
+        
+        with st.form("reset_token_form"):
+            token = st.text_input("Reset Token")
+            new_password = st.text_input("New Password", type="password")
+            confirm_password = st.text_input("Confirm New Password", type="password")
+            submit_button = st.form_submit_button("Reset Password")
+            
+            if submit_button:
+                if token and new_password and confirm_password:
+                    if new_password != confirm_password:
+                        st.error("Passwords do not match")
+                    elif len(new_password) < 6:
+                        st.error("Password must be at least 6 characters long")
+                    else:
+                        username = st.session_state.get('reset_username')
+                        if username:
+                            success, message = auth_system.reset_password(username, token, new_password)
+                            if success:
+                                st.success(message)
+                                st.info("You can now login with your new password")
+                                st.session_state.show_reset = False
+                                st.session_state.reset_step = 'email'
+                                if 'reset_username' in st.session_state:
+                                    del st.session_state.reset_username
+                                st.rerun()
+                            else:
+                                st.error(message)
+                        else:
+                            st.error("Session expired. Please start over.")
+                            st.session_state.reset_step = 'email'
+                            st.rerun()
+                else:
+                    st.error("Please fill in all fields")
+    
+    st.markdown("---")
+    if st.button("Back to Login"):
+        st.session_state.show_reset = False
+        st.session_state.show_signup = False
+        st.session_state.reset_step = 'email'
+        if 'reset_username' in st.session_state:
+            del st.session_state.reset_username
+        st.rerun()
