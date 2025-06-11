@@ -12,6 +12,9 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import authentication system
+from auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile
+
 # Page configuration
 st.set_page_config(
     page_title="Stock Analysis Tool",
@@ -19,8 +22,30 @@ st.set_page_config(
     layout="wide"
 )
 
+# Initialize authentication system
+init_session_state()
+auth_system = UserAuth()
+
+# Check if user is authenticated
+if not st.session_state.authenticated:
+    st.title("📈 Stock Analysis Tool")
+    st.markdown("**Please login or create an account to access the stock analysis features**")
+    
+    # Show login or signup form based on session state
+    if st.session_state.show_signup:
+        signup_form(auth_system)
+    else:
+        login_form(auth_system)
+    
+    # Stop execution here if not authenticated
+    st.stop()
+
+# User is authenticated - show the main application
 st.title("📈 Stock Analysis Tool")
-st.markdown("Enter a stock symbol to analyze financial data from Yahoo Finance")
+st.markdown("Analyze financial data from Yahoo Finance with advanced prediction models")
+
+# Show user profile in sidebar
+show_user_profile(auth_system)
 
 # Sidebar for user inputs
 st.sidebar.header("Stock Analysis Parameters")
