@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  streamlit-app:
+    image: yourusername/stock-tracker:latest  # Use your Docker Hub image
+    ports:
+      - "127.0.0.1:8501:8501"
+    environment:
+      - GMAIL_EMAIL=${GMAIL_EMAIL}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+    volumes:
+      - user_data:/app/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - streamlit-app
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  user_data:
+
+networks:
+  app-network:
+    driver: bridge
