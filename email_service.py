@@ -20,14 +20,16 @@ class EmailService:
             return False, "Email service not configured"
         
         try:
-            # Create simple email message
-            subject = "Stock Analysis Tool - Password Reset"
+            # Create email message with proper headers
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
             
-            body = f"""From: {self.gmail_email}
-To: {to_email}
-Subject: {subject}
-
-Hi {username},
+            msg = MIMEMultipart()
+            msg['From'] = self.gmail_email
+            msg['To'] = to_email
+            msg['Subject'] = "Stock Analysis Tool - Password Reset"
+            
+            body = f"""Hi {username},
 
 You requested a password reset for your Stock Analysis Tool account.
 
@@ -41,19 +43,21 @@ Best regards,
 Stock Analysis Tool Team
 """
             
-            # Send email
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Send email with better error handling
             context = ssl.create_default_context()
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls(context=context)
                 server.login(self.gmail_email, self.gmail_password)
-                server.sendmail(self.gmail_email, to_email, body)
+                server.sendmail(self.gmail_email, to_email, msg.as_string())
             
             return True, "Email sent successfully"
             
-        except smtplib.SMTPAuthenticationError:
-            return False, "Gmail authentication failed. Please check your email and app password."
+        except smtplib.SMTPAuthenticationError as e:
+            return False, f"Gmail authentication failed: {str(e)}. Please verify your email and app password are correct."
         except smtplib.SMTPException as e:
-            return False, f"Failed to send email: {str(e)}"
+            return False, f"SMTP error: {str(e)}"
         except Exception as e:
             return False, f"Unexpected error: {str(e)}"
     
@@ -63,14 +67,16 @@ Stock Analysis Tool Team
             return False, "Email service not configured"
         
         try:
-            # Create simple email message
-            subject = "Welcome to Stock Analysis Tool!"
+            # Create email message with proper headers
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
             
-            body = f"""From: {self.gmail_email}
-To: {to_email}
-Subject: {subject}
-
-Welcome to Stock Analysis Tool, {username}!
+            msg = MIMEMultipart()
+            msg['From'] = self.gmail_email
+            msg['To'] = to_email
+            msg['Subject'] = "Welcome to Stock Analysis Tool!"
+            
+            body = f"""Welcome to Stock Analysis Tool, {username}!
 
 Your account has been successfully created. You can now:
 
@@ -86,14 +92,20 @@ Happy investing!
 Stock Analysis Tool Team
 """
             
-            # Send email (only execute if credentials are available)
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Send email with better error handling
             context = ssl.create_default_context()
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls(context=context)
                 server.login(self.gmail_email, self.gmail_password)
-                server.sendmail(self.gmail_email, to_email, body)
+                server.sendmail(self.gmail_email, to_email, msg.as_string())
             
             return True, "Welcome email sent successfully"
             
+        except smtplib.SMTPAuthenticationError as e:
+            return False, f"Gmail authentication failed: {str(e)}. Please verify your email and app password are correct."
+        except smtplib.SMTPException as e:
+            return False, f"SMTP error: {str(e)}"
         except Exception as e:
             return False, f"Failed to send welcome email: {str(e)}"

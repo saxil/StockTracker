@@ -51,10 +51,10 @@
         "timestamp": "2025-06-11 07:30:05.695687"
       }
     ],
-    "reset_token": "olrzZLqaNv20WMS77HDE9jhFSOFBK5iN",
-    "reset_token_expires": "2025-06-11 07:23:07.422282",
-    "failed_login_attempts": 2,
-    "last_failed_attempt": "2025-06-11 07:31:08.654268",
-    "account_locked": false
+    "reset_token": "SQr5yJPWapQGv6Ei8IqzwNsx63LZ8QUu",
+    "reset_token_expires": "2025-06-11 08:33:47.262924",
+    "failed_login_attempts": 5,
+    "last_failed_attempt": "2025-06-11 07:31:14.735741",
+    "account_locked": true
   }
 }
