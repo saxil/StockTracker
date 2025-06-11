@@ -1,21 +1,55 @@
-# Stock Analysis Tool
+# Enhanced Stock Tracker
 
-A comprehensive stock analysis tool built with Streamlit that provides real-time stock data, technical analysis, and machine learning-powered price predictions.
+A comprehensive stock tracking and analysis application built with Streamlit featuring advanced technical analysis, portfolio management, price alerts, and AI-powered predictions.
 
 ## 🚀 Live Demo
 
-Visit the live application: [Stock Analysis Tool](https://your-app-name.streamlit.app)
+Visit the live application: [Enhanced Stock Tracker](https://your-app-name.streamlit.app)
 
 ## 📋 Features
 
+### 📊 Stock Analysis
 - **Real-time Stock Data**: Fetch current and historical stock prices using Yahoo Finance
-- **Interactive Charts**: Beautiful, interactive charts powered by Plotly
-- **Technical Analysis**: Moving averages, RSI, MACD, and other technical indicators
-- **Price Prediction**: Machine learning models for stock price forecasting
-- **User Authentication**: Secure login system with user profiles
-- **Favorites System**: Save and quickly access your favorite stocks
-- **Email Alerts**: Get notified about significant price movements
-- **Data Export**: Download historical data as CSV files
+- **Interactive Charts**: Beautiful, interactive candlestick charts powered by Plotly
+- **15+ Technical Indicators**: SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ATR, CCI, Williams %R, VWAP, OBV, and more
+- **Trading Signals**: Automated buy/sell/neutral signals based on technical analysis
+- **Support & Resistance**: Automatic identification of key price levels
+- **Fibonacci Retracement**: Calculate and display Fibonacci levels
+
+### 💼 Portfolio Management
+- **Holdings Tracking**: Add and manage stock holdings with purchase dates and prices
+- **Performance Analytics**: Real-time portfolio value, gains/losses, and percentage returns
+- **Allocation Analysis**: Visual portfolio allocation with pie charts and performance graphs
+- **Dividend Tracking**: Monitor dividend income and yields
+- **Export Functionality**: Download portfolio data as CSV files
+- **Rebalancing Suggestions**: AI-powered portfolio rebalancing recommendations
+
+### 🔔 Smart Alerts System
+- **Price Alerts**: Set alerts for price above/below thresholds
+- **Percentage Change Alerts**: Get notified on significant price movements
+- **Email Notifications**: Receive alert notifications via email
+- **Alert History**: Track triggered alerts and statistics
+- **Multiple Alert Types**: Support for various alert conditions
+
+### 🎯 AI-Powered Predictions
+- **Machine Learning Models**: Random Forest and Linear Regression for price forecasting
+- **Customizable Timeframes**: Predict prices 1-90 days into the future
+- **Model Accuracy Metrics**: MAE, RMSE, and performance indicators
+- **Visual Predictions**: Interactive charts showing predicted vs historical prices
+- **Prediction Export**: Download predictions as CSV data
+
+### 🔐 User Management
+- **Secure Authentication**: Login system with user profiles
+- **Favorites System**: Save and quickly access favorite stocks
+- **Analysis History**: Track all your stock analyses
+- **Password Reset**: Email-based password recovery
+- **User Preferences**: Personalized settings and configurations
+
+### 💾 Data Persistence
+- **SQLite Database**: Robust data storage for stocks, portfolios, alerts, and analysis history
+- **Historical Data Storage**: Automatic storage of fetched stock data
+- **Analysis Caching**: Save and retrieve analysis results
+- **Portfolio History**: Track portfolio performance over time
 
 ## 🛠️ Technologies Used
 
@@ -23,28 +57,177 @@ Visit the live application: [Stock Analysis Tool](https://your-app-name.streamli
 - **Yahoo Finance API** - Stock data source
 - **Plotly** - Interactive visualizations
 - **scikit-learn** - Machine learning models
-- **Pandas** - Data manipulation
+- **SQLite** - Database for data persistence
+- **Pandas** - Data manipulation and analysis
 - **NumPy** - Numerical computing
+- **Python 3.8+** - Core programming language
+
+## 🏗️ Project Structure
+
+```
+StockTracker/
+├── src/
+│   └── stock_tracker/
+│       ├── __init__.py
+│       ├── main.py                 # Original Streamlit app
+│       ├── config/
+│       │   ├── __init__.py
+│       │   ├── auth.py             # Authentication system
+│       │   └── settings.py         # Application settings
+│       ├── models/
+│       │   ├── __init__.py
+│       │   ├── stock.py            # Stock data models
+│       │   └── database.py         # Database management
+│       ├── services/
+│       │   ├── __init__.py
+│       │   └── email_service.py    # Email notifications
+│       ├── utils/
+│       │   ├── __init__.py
+│       │   ├── technical_analysis.py    # Technical indicators
+│       │   ├── portfolio.py             # Portfolio management
+│       │   └── alert_system.py          # Price alerts system
+│       └── templates/
+│           └── email/              # Email templates
+├── tests/
+│   ├── __init__.py
+│   ├── test_database.py           # Database tests
+│   ├── test_technical_analysis.py # Technical analysis tests
+│   ├── test_portfolio.py          # Portfolio tests
+│   ├── test_email_service.py      # Email service tests
+│   └── fixtures/                  # Test data fixtures
+├── data/
+│   ├── stocks.db                  # SQLite database
+│   └── users.json                 # User data
+├── docs/                          # Documentation
+├── enhanced_app.py                # Enhanced Streamlit application
+├── app.py                         # Original application
+├── auth.py                        # Authentication module
+├── run_tests.py                   # Test runner
+├── requirements.txt               # Dependencies
+└── README.md                      # This file
+```
 
 ## 🏃‍♂️ Running Locally
 
-1. Clone the repository:
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+
+### Setup Instructions
+
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/yourusername/StockTracker.git
 cd StockTracker
 ```
 
-2. Install dependencies:
+2. **Create a virtual environment:**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+4. **Run the enhanced application:**
+```bash
+streamlit run enhanced_app.py
+```
+
+5. **Or run the original application:**
 ```bash
 streamlit run app.py
 ```
 
-4. Open your browser to `http://localhost:8501`
+6. **Open your browser to:** `http://localhost:8501`
+
+## 🧪 Testing
+
+Run the comprehensive test suite:
+
+```bash
+# Run all tests
+python run_tests.py
+
+# Run tests with coverage report
+python run_tests.py --coverage
+
+# Run specific test modules
+python -m pytest tests/test_database.py -v
+python -m pytest tests/test_technical_analysis.py -v
+python -m pytest tests/test_portfolio.py -v
+```
+
+## 🔧 Configuration
+
+### Email Configuration (Optional)
+For alert notifications, set up email configuration:
+
+1. **Create environment variables:**
+```bash
+# Windows
+set EMAIL_ADDRESS=your-email@gmail.com
+set EMAIL_PASSWORD=your-app-password
+
+# Linux/Mac
+export EMAIL_ADDRESS=your-email@gmail.com
+export EMAIL_PASSWORD=your-app-password
+```
+
+2. **Or create `.streamlit/secrets.toml`:**
+```toml
+[email]
+EMAIL_ADDRESS = "your-email@gmail.com"
+EMAIL_PASSWORD = "your-app-password"
+```
+
+### Database Configuration
+The application automatically creates a SQLite database in the `data/` directory. No additional configuration required.
+
+## 📊 Usage Guide
+
+### Getting Started
+1. **Create an account** or login with existing credentials
+2. **Analyze stocks** by entering symbols (e.g., AAPL, GOOGL, MSFT)
+3. **Add to portfolio** to track your investments
+4. **Set up alerts** for price movements
+5. **Explore technical analysis** with advanced indicators
+6. **Generate predictions** using AI models
+
+### Key Features
+
+#### Stock Analysis
+- Enter any stock symbol (e.g., AAPL, GOOGL, TSLA)
+- Choose analysis timeframe (1mo to 5y)
+- View real-time data, charts, and key metrics
+- Get automated trading signals
+
+#### Portfolio Management
+- Add holdings with purchase price and date
+- Monitor real-time performance
+- View allocation and returns
+- Export data for external analysis
+
+#### Price Alerts
+- Set price threshold alerts
+- Configure percentage change notifications
+- Receive email notifications (if configured)
+- Track alert history and statistics
+
+#### Technical Analysis
+- 15+ technical indicators
+- Support and resistance levels
+- Fibonacci retracement levels
+- Advanced charting with multiple timeframes
+
+#### AI Predictions
+- Machine learning price forecasting
+- Multiple model options (Random Forest, Linear Regression)
+- Customizable prediction timeframes
+- Model accuracy metrics
 
 ## 📦 Deployment
 
