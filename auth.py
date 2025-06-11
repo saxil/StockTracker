@@ -6,10 +6,12 @@ import string
 from typing import Dict, Optional
 import streamlit as st
 from datetime import datetime, timedelta
+from email_service import EmailService
 
 class UserAuth:
     def __init__(self, db_file: str = "users.json"):
         self.db_file = db_file
+        self.email_service = EmailService()
         self.init_database()
     
     def init_database(self):
@@ -64,6 +66,14 @@ class UserAuth:
         }
         
         self.save_users(users)
+        
+        # Send welcome email if email service is configured
+        if self.email_service.is_configured():
+            try:
+                self.email_service.send_welcome_email(email, username)
+            except Exception:
+                pass  # Don't fail account creation if email fails
+        
         return True, "Account created successfully"
     
     def authenticate_user(self, username: str, password: str) -> tuple[bool, str]:
@@ -168,7 +178,7 @@ class UserAuth:
         return users.get(username, {}).get('analysis_history', [])
     
     def generate_reset_token(self, username: str) -> tuple[bool, str]:
-        """Generate a password reset token"""
+        """Generate a password reset token and send email"""
         users = self.load_users()
         if username not in users:
             return False, "Username not found"
@@ -181,7 +191,16 @@ class UserAuth:
         users[username]['reset_token_expires'] = str(expires)
         self.save_users(users)
         
-        return True, token
+        # Send email if configured
+        if self.email_service.is_configured():
+            user_email = users[username]['email']
+            email_success, email_message = self.email_service.send_reset_email(user_email, token, username)
+            if email_success:
+                return True, "EMAIL_SENT"
+            else:
+                return True, f"TOKEN_GENERATED|{token}|EMAIL_FAILED: {email_message}"
+        else:
+            return True, f"TOKEN_GENERATED|{token}|EMAIL_NOT_CONFIGURED"
     
     def reset_password(self, username: str, token: str, new_password: str) -> tuple[bool, str]:
         """Reset password using reset token"""
@@ -348,15 +367,27 @@ def password_reset_form(auth_system: UserAuth):
                 if email:
                     username = auth_system.find_user_by_email(email)
                     if username:
-                        success, token = auth_system.generate_reset_token(username)
+                        success, result = auth_system.generate_reset_token(username)
                         if success:
-                            st.success("Password reset email sent!")
-                            st.info("📧 Check your email for the reset token.")
-                            
-                            with st.expander("🔧 Demo Mode - Click here to see your reset token"):
-                                st.warning("**Demo Mode Only**: In a real application, this token would be sent to your email address.")
-                                st.code(f"Reset Token: {token}")
-                                st.info("Copy this token and use it in the next step.")
+                            if result == "EMAIL_SENT":
+                                st.success("Password reset email sent!")
+                                st.info("📧 Check your email for the reset token.")
+                            elif result.startswith("TOKEN_GENERATED"):
+                                parts = result.split("|")
+                                token = parts[1]
+                                reason = parts[2] if len(parts) > 2 else ""
+                                
+                                if "EMAIL_NOT_CONFIGURED" in reason:
+                                    st.warning("Email service not configured.")
+                                    with st.expander("🔧 Demo Mode - Click here to see your reset token"):
+                                        st.info("Your reset token:")
+                                        st.code(token)
+                                        st.info("Copy this token and use it in the next step.")
+                                elif "EMAIL_FAILED" in reason:
+                                    st.warning("Failed to send email, but token was generated.")
+                                    with st.expander("Your reset token is available here"):
+                                        st.code(token)
+                                        st.error(reason.replace("EMAIL_FAILED: ", ""))
                             
                             st.session_state.reset_username = username
                             st.session_state.reset_step = 'token'
