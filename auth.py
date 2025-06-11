@@ -51,7 +51,9 @@ class UserAuth:
             'password': self.hash_password(password),
             'email': email,
             'created_at': str(datetime.now()),
-            'last_login': None
+            'last_login': None,
+            'favorite_stocks': [],
+            'analysis_history': []
         }
         
         self.save_users(users)
@@ -77,6 +79,49 @@ class UserAuth:
         """Get user information"""
         users = self.load_users()
         return users.get(username)
+    
+    def add_favorite_stock(self, username: str, symbol: str) -> bool:
+        """Add stock to user's favorites"""
+        users = self.load_users()
+        if username in users:
+            if symbol not in users[username].get('favorite_stocks', []):
+                users[username].setdefault('favorite_stocks', []).append(symbol.upper())
+                self.save_users(users)
+                return True
+        return False
+    
+    def remove_favorite_stock(self, username: str, symbol: str) -> bool:
+        """Remove stock from user's favorites"""
+        users = self.load_users()
+        if username in users and symbol.upper() in users[username].get('favorite_stocks', []):
+            users[username]['favorite_stocks'].remove(symbol.upper())
+            self.save_users(users)
+            return True
+        return False
+    
+    def get_favorite_stocks(self, username: str) -> list:
+        """Get user's favorite stocks"""
+        users = self.load_users()
+        return users.get(username, {}).get('favorite_stocks', [])
+    
+    def add_analysis_history(self, username: str, symbol: str, analysis_type: str):
+        """Add analysis to user's history"""
+        users = self.load_users()
+        if username in users:
+            history_entry = {
+                'symbol': symbol.upper(),
+                'analysis_type': analysis_type,
+                'timestamp': str(datetime.now())
+            }
+            users[username].setdefault('analysis_history', []).append(history_entry)
+            # Keep only last 50 entries
+            users[username]['analysis_history'] = users[username]['analysis_history'][-50:]
+            self.save_users(users)
+    
+    def get_analysis_history(self, username: str) -> list:
+        """Get user's analysis history"""
+        users = self.load_users()
+        return users.get(username, {}).get('analysis_history', [])
 
 def init_session_state():
     """Initialize session state variables"""

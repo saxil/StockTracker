@@ -50,10 +50,23 @@ show_user_profile(auth_system)
 # Sidebar for user inputs
 st.sidebar.header("Stock Analysis Parameters")
 
+# Quick access to favorite stocks
+favorite_stocks = auth_system.get_favorite_stocks(st.session_state.username)
+if favorite_stocks:
+    st.sidebar.markdown("### ⭐ Favorite Stocks")
+    selected_favorite = st.sidebar.selectbox(
+        "Quick select from favorites:",
+        options=[""] + favorite_stocks,
+        format_func=lambda x: "Select a favorite..." if x == "" else x
+    )
+    if selected_favorite:
+        st.session_state.selected_stock = selected_favorite
+
 # Stock symbol input
+default_symbol = st.session_state.get('selected_stock', "AAPL")
 stock_symbol = st.sidebar.text_input(
     "Enter Stock Symbol", 
-    value="AAPL",
+    value=default_symbol,
     help="Enter a valid stock ticker symbol (e.g., AAPL, GOOGL, MSFT)"
 ).upper()
 
@@ -472,11 +485,28 @@ if analyze_button or stock_symbol:
                 info = stock_data['info']
                 
                 # Display company information
-                st.header(f"{info.get('longName', stock_symbol)} ({stock_symbol})")
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.header(f"{info.get('longName', stock_symbol)} ({stock_symbol})")
+                with col2:
+                    # Add to favorites button
+                    is_favorite = stock_symbol in favorite_stocks
+                    if st.button("⭐ Remove from Favorites" if is_favorite else "⭐ Add to Favorites"):
+                        if is_favorite:
+                            auth_system.remove_favorite_stock(st.session_state.username, stock_symbol)
+                            st.success(f"Removed {stock_symbol} from favorites")
+                        else:
+                            auth_system.add_favorite_stock(st.session_state.username, stock_symbol)
+                            st.success(f"Added {stock_symbol} to favorites")
+                        st.rerun()
                 
                 if info.get('longBusinessSummary'):
                     with st.expander("Company Description"):
                         st.write(info['longBusinessSummary'])
+                
+                # Record this analysis in user's history
+                analysis_type = "Price Prediction" if enable_prediction else "Stock Analysis"
+                auth_system.add_analysis_history(st.session_state.username, stock_symbol, analysis_type)
                 
                 # Display key metrics
                 st.subheader("Key Financial Metrics")
@@ -611,6 +641,38 @@ else:
     # Display initial instructions
     st.info("👈 Enter a stock symbol in the sidebar and click 'Analyze Stock' to get started!")
     
+    # Show user's analysis history
+    analysis_history = auth_system.get_analysis_history(st.session_state.username)
+    if analysis_history:
+        st.subheader("📊 Your Recent Analysis History")
+        
+        # Display last 10 analyses
+        recent_history = analysis_history[-10:]
+        history_df = pd.DataFrame(recent_history)
+        
+        if not history_df.empty:
+            # Format timestamp
+            history_df['Date'] = pd.to_datetime(history_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
+            history_df = history_df[['Date', 'symbol', 'analysis_type']].rename(columns={
+                'Date': 'Analysis Date',
+                'symbol': 'Stock Symbol',
+                'analysis_type': 'Analysis Type'
+            })
+            
+            st.dataframe(history_df, use_container_width=True)
+            
+            # Quick analysis buttons for recent stocks
+            if len(recent_history) > 0:
+                st.markdown("**Quick Re-analyze:**")
+                recent_symbols = list(dict.fromkeys([entry['symbol'] for entry in recent_history[-5:]]))
+                cols = st.columns(min(len(recent_symbols), 5))
+                
+                for i, symbol in enumerate(recent_symbols):
+                    with cols[i % 5]:
+                        if st.button(f"📈 {symbol}", key=f"quick_{symbol}"):
+                            st.session_state.selected_stock = symbol
+                            st.rerun()
+    
     # Display sample information
     st.markdown("""
     ### Features:
@@ -619,6 +681,8 @@ else:
     - **Key Metrics**: P/E ratio, market cap, dividend yield, and more
     - **Historical Data**: Detailed historical price and volume data
     - **CSV Export**: Download historical data for further analysis
+    - **Price Prediction**: ML-powered stock price forecasting
+    - **User Favorites**: Save and quickly access your favorite stocks
     
     ### Popular Stock Symbols to Try:
     - **AAPL** - Apple Inc.
