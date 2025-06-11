@@ -16,7 +16,7 @@ class EmailService:
     
     def send_reset_email(self, to_email: str, reset_token: str, username: str) -> Tuple[bool, str]:
         """Send password reset email"""
-        if not self.is_configured():
+        if not self.is_configured() or not self.gmail_email or not self.gmail_password:
             return False, "Email service not configured"
         
         try:
