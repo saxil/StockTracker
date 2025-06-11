@@ -8,7 +8,7 @@ class EmailService:
         self.gmail_email = os.environ.get("GMAIL_EMAIL") or ""
         self.gmail_password = os.environ.get("GMAIL_APP_PASSWORD") or ""
         self.smtp_server = "smtp.gmail.com"
-        self.smtp_port = 465  # Using SSL port instead of TLS port
+        self.smtp_port = 587
     
     def is_configured(self) -> bool:
         """Check if email service is properly configured"""
