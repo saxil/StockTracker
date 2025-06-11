@@ -5,8 +5,8 @@ from typing import Tuple
 
 class EmailService:
     def __init__(self):
-        self.gmail_email = os.environ.get("GMAIL_EMAIL")
-        self.gmail_password = os.environ.get("GMAIL_APP_PASSWORD")
+        self.gmail_email = os.environ.get("GMAIL_EMAIL") or ""
+        self.gmail_password = os.environ.get("GMAIL_APP_PASSWORD") or ""
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 587
     
@@ -59,7 +59,7 @@ Stock Analysis Tool Team
     
     def send_welcome_email(self, to_email: str, username: str) -> Tuple[bool, str]:
         """Send welcome email to new users"""
-        if not self.is_configured():
+        if not self.is_configured() or not self.gmail_email or not self.gmail_password:
             return False, "Email service not configured"
         
         try:
@@ -86,7 +86,7 @@ Happy investing!
 Stock Analysis Tool Team
 """
             
-            # Send email
+            # Send email (only execute if credentials are available)
             context = ssl.create_default_context()
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls(context=context)
