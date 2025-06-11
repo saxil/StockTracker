@@ -350,9 +350,14 @@ def password_reset_form(auth_system: UserAuth):
                     if username:
                         success, token = auth_system.generate_reset_token(username)
                         if success:
-                            st.success("Reset token generated successfully!")
-                            st.info(f"Your reset token is: **{token}**")
-                            st.warning("Copy this token - you'll need it in the next step. In a real application, this would be sent to your email.")
+                            st.success("Password reset email sent!")
+                            st.info("📧 Check your email for the reset token.")
+                            
+                            with st.expander("🔧 Demo Mode - Click here to see your reset token"):
+                                st.warning("**Demo Mode Only**: In a real application, this token would be sent to your email address.")
+                                st.code(f"Reset Token: {token}")
+                                st.info("Copy this token and use it in the next step.")
+                            
                             st.session_state.reset_username = username
                             st.session_state.reset_step = 'token'
                             st.rerun()
@@ -364,7 +369,8 @@ def password_reset_form(auth_system: UserAuth):
                     st.error("Please enter your email address")
     
     elif st.session_state.reset_step == 'token':
-        st.write("Enter the reset token and your new password.")
+        st.write("Enter the reset token from your email and choose a new password.")
+        st.info("💡 If you didn't receive the email, check your spam folder or go back to request a new token.")
         
         with st.form("reset_token_form"):
             token = st.text_input("Reset Token")
@@ -400,10 +406,20 @@ def password_reset_form(auth_system: UserAuth):
                     st.error("Please fill in all fields")
     
     st.markdown("---")
-    if st.button("Back to Login"):
-        st.session_state.show_reset = False
-        st.session_state.show_signup = False
-        st.session_state.reset_step = 'email'
-        if 'reset_username' in st.session_state:
-            del st.session_state.reset_username
-        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Back to Login"):
+            st.session_state.show_reset = False
+            st.session_state.show_signup = False
+            st.session_state.reset_step = 'email'
+            if 'reset_username' in st.session_state:
+                del st.session_state.reset_username
+            st.rerun()
+    
+    with col2:
+        if st.session_state.reset_step == 'token':
+            if st.button("Request New Token"):
+                st.session_state.reset_step = 'email'
+                if 'reset_username' in st.session_state:
+                    del st.session_state.reset_username
+                st.rerun()
