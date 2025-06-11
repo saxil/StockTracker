@@ -32,24 +32,22 @@ src/stock_tracker/
 
 ## Configuration
 
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root with the following variables (all optional):
 
 ```env
-# Email Configuration
+# Email Configuration (Optional - for alert notifications)
 EMAIL_ADDRESS=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
 SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
-
-# Stock API Keys
-ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key
-FINNHUB_API_KEY=your-finnhub-key
 
 # Application Settings
 DEBUG=False
 LOG_LEVEL=INFO
 USERS_FILE=data/users.json
 ```
+
+**Note:** This application uses Yahoo Finance (yfinance) which provides free stock data without requiring API keys.
 
 ## Installation
 

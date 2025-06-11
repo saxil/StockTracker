@@ -7,15 +7,13 @@ from typing import Optional
 class Settings:
     """Application settings configuration."""
     
-    # Email Configuration
+    # Email Configuration (Optional - for alerts)
     SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
     EMAIL_ADDRESS: Optional[str] = os.getenv("EMAIL_ADDRESS")
     EMAIL_PASSWORD: Optional[str] = os.getenv("EMAIL_PASSWORD")
     
-    # Stock API Configuration
-    ALPHA_VANTAGE_API_KEY: Optional[str] = os.getenv("ALPHA_VANTAGE_API_KEY")
-    FINNHUB_API_KEY: Optional[str] = os.getenv("FINNHUB_API_KEY")
+    # Note: This app uses Yahoo Finance (yfinance) which doesn't require API keys
     
     # Application Configuration
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
@@ -26,12 +24,11 @@ class Settings:
     
     @classmethod
     def validate(cls) -> bool:
-        """Validate required settings are present."""
-        required_settings = [
-            cls.EMAIL_ADDRESS,
-            cls.EMAIL_PASSWORD,
-        ]
-        return all(setting is not None for setting in required_settings)
+        """Validate email settings if email functionality is needed."""
+        # Email settings are optional - only validate if EMAIL_ADDRESS is provided
+        if cls.EMAIL_ADDRESS:
+            return cls.EMAIL_PASSWORD is not None
+        return True  # Email functionality is optional
 
 
 settings = Settings()

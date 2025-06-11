@@ -1,41 +1,40 @@
-# Email Setup Instructions for Stock Analysis Tool
+# Email Setup Instructions (Optional)
 
-## Step 1: Enable 2-Factor Authentication on Gmail
-1. Go to your Google Account settings: https://myaccount.google.com/
-2. Click on "Security" in the left sidebar
-3. Under "Signing in to Google", enable "2-Step Verification"
+The Stock Tracker application can send email notifications for price alerts. **Email setup is completely optional** - the app works perfectly without it.
 
-## Step 2: Generate an App Password
-1. Still in Security settings, find "App passwords" 
-2. Click "App passwords" (you may need to sign in again)
-3. Select "Mail" as the app
-4. Select "Windows Computer" as the device
-5. Click "Generate"
-6. Copy the 16-character password (something like: abcd efgh ijkl mnop)
+## Quick Setup for Gmail
 
-## Step 3: Set Environment Variables in Windows
-Open PowerShell as Administrator and run:
+If you want to receive email alerts, follow these steps:
 
+### Step 1: Enable 2-Factor Authentication on Gmail
+1. Go to [Google Account settings](https://myaccount.google.com/)
+2. Click "Security" → Enable "2-Step Verification"
+
+### Step 2: Generate an App Password
+1. In Security settings, find "App passwords"
+2. Select "Mail" and "Windows Computer"
+3. Copy the 16-character password (e.g., `abcdefghijklmnop`)
+
+### Step 3: Set Environment Variables
+
+**Windows PowerShell:**
 ```powershell
-# Set your Gmail email
-[Environment]::SetEnvironmentVariable("GMAIL_EMAIL", "your-email@gmail.com", "User")
-
-# Set your Gmail app password (remove spaces)
-[Environment]::SetEnvironmentVariable("GMAIL_APP_PASSWORD", "abcdefghijklmnop", "User")
+$env:EMAIL_ADDRESS="your-email@gmail.com"
+$env:EMAIL_PASSWORD="your-16-char-app-password"
 ```
 
-Replace:
-- "your-email@gmail.com" with your actual Gmail address
-- "abcdefghijklmnop" with your actual 16-character app password (no spaces)
-
-## Step 4: Restart your application
-Close the terminal and restart Streamlit for the environment variables to take effect.
-
-## Alternative: Use .env file (for development)
-Create a .env file in your project directory:
-```
-GMAIL_EMAIL=your-email@gmail.com
-GMAIL_APP_PASSWORD=abcdefghijklmnop
+**Alternative: Create `.env` file**
+```env
+EMAIL_ADDRESS=your-email@gmail.com
+EMAIL_PASSWORD=abcdefghijklmnop
 ```
 
-Then install python-dotenv and modify email_service.py to load from .env file.
+### Step 4: Restart the Application
+Close and restart Streamlit for changes to take effect.
+
+## Important Notes
+
+- **Email is optional** - all core features work without email setup
+- Only needed for price alert notifications
+- Uses secure Gmail SMTP (no API keys required)
+- App will show "Email not configured" if not set up

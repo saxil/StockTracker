@@ -2,7 +2,32 @@
 
 A comprehensive stock tracking and analysis application built with Streamlit featuring advanced technical analysis, portfolio management, price alerts, and AI-powered predictions.
 
-## 🚀 Live Demo
+## 🚀 Quick Start (No Setup Required!)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/StockTracker.git
+cd StockTracker
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run the application
+streamlit run enhanced_app.py
+
+# 4. Open your browser to http://localhost:8501
+```
+
+**That's it!** No API keys, no configuration files, no database setup required. Just install and run!
+
+### Alternative: Use the startup scripts
+```bash
+# Windows
+start.bat
+
+# Linux/Mac
+./start.sh
+```
 
 Visit the live application: [Enhanced Stock Tracker](https://your-app-name.streamlit.app)
 
@@ -149,6 +174,9 @@ streamlit run app.py
 Run the comprehensive test suite:
 
 ```bash
+# Verify everything works (no API keys required)
+python verify_setup.py
+
 # Run all tests
 python run_tests.py
 
@@ -160,6 +188,31 @@ python -m pytest tests/test_database.py -v
 python -m pytest tests/test_technical_analysis.py -v
 python -m pytest tests/test_portfolio.py -v
 ```
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+**❓ "Module not found" errors**
+```bash
+# Make sure you're in the correct directory and dependencies are installed
+pip install -r requirements.txt
+```
+
+**❓ "No data available" for stocks**
+```bash
+# Test if Yahoo Finance is accessible
+python verify_setup.py
+```
+
+**❓ Email alerts not working**
+- This is normal! Email is completely optional
+- See `docs/EMAIL_SETUP.md` if you want email notifications
+- All other features work without email setup
+
+**❓ Database errors**
+- The app automatically creates its SQLite database
+- Delete `data/stocks.db` if you want to reset everything
 
 ## 🔧 Configuration
 
@@ -186,6 +239,9 @@ EMAIL_PASSWORD = "your-app-password"
 
 ### Database Configuration
 The application automatically creates a SQLite database in the `data/` directory. No additional configuration required.
+
+### Stock Data Source
+This application uses **Yahoo Finance (yfinance)** which provides free stock data without requiring any API keys or subscriptions. Simply install the requirements and start using the app!
 
 ## 📊 Usage Guide
 
@@ -237,18 +293,22 @@ This app is deployed on Streamlit Community Cloud. To deploy your own version:
 2. Go to [share.streamlit.io](https://share.streamlit.io)
 3. Connect your GitHub account
 4. Select your forked repository
-5. Set the main file path to `app.py`
+5. Set the main file path to `enhanced_app.py` (or `app.py` for basic version)
 6. Deploy!
+
+**No API keys required!** The app uses Yahoo Finance which provides free data.
 
 ## 🔧 Configuration
 
-The app uses environment variables for sensitive data. Create a `.streamlit/secrets.toml` file for local development:
+The app uses environment variables for sensitive data. Create a `.streamlit/secrets.toml` file for local development (optional):
 
 ```toml
 [email]
 GMAIL_EMAIL = "your-email@gmail.com"
 GMAIL_APP_PASSWORD = "your-app-password"
 ```
+
+Email configuration is only needed if you want to receive alert notifications.
 
 ## 📊 Popular Stock Symbols
 
@@ -259,6 +319,26 @@ Try these popular symbols in the app:
 - **TSLA** - Tesla Inc.
 - **AMZN** - Amazon.com Inc.
 - **NVDA** - NVIDIA Corporation
+
+## ❓ Frequently Asked Questions
+
+**Q: Do I need any API keys?**  
+A: No! The app uses Yahoo Finance which provides free data without requiring API keys.
+
+**Q: Do I need to set up email?**  
+A: No, email is completely optional. It's only needed if you want to receive price alert notifications.
+
+**Q: What databases do I need to install?**  
+A: None! The app uses SQLite which is built into Python. The database file is created automatically.
+
+**Q: Can I use this for real trading?**  
+A: This is for educational and analysis purposes only. Always consult with financial professionals before making investment decisions.
+
+**Q: Does this work offline?**  
+A: You need an internet connection to fetch current stock data, but the analysis and portfolio features work with cached data.
+
+**Q: Is my data safe?**  
+A: All data is stored locally on your computer in a SQLite database. Nothing is sent to external servers except for fetching stock prices from Yahoo Finance.
 
 ## ⚠️ Disclaimer
 

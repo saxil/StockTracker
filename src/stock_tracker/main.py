@@ -17,7 +17,7 @@ from auth import UserAuth, init_session_state, login_form, signup_form, show_use
 
 # Page configuration
 st.set_page_config(
-    page_title="Stock Analysis Tool",
+    page_title="Stock Analysis Tool - No API Keys Required",
     page_icon="📈",
     layout="wide"
 )
@@ -29,6 +29,7 @@ auth_system = UserAuth()
 # Check if user is authenticated
 if not st.session_state.authenticated:
     st.title("📈 Stock Analysis Tool")
+    st.info("🚀 **No API keys required!** This app uses free Yahoo Finance data.")
     st.markdown("**Please login or create an account to access the stock analysis features**")
     
     # Show appropriate form based on session state
