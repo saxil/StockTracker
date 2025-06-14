@@ -36,7 +36,7 @@ Visit the live application: [Enhanced Stock Tracker](https://your-app-name.strea
 ### 📊 Stock Analysis
 - **Real-time Stock Data**: Fetch current and historical stock prices using Yahoo Finance
 - **Interactive Charts**: Beautiful, interactive candlestick charts powered by Plotly
-- **15+ Technical Indicators**: SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ATR, CCI, Williams %R, VWAP, OBV, and more
+- **15+ Technical Indicators**: SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ATR, CCI, Williams %R, VWAP, OBV, and more. Prediction models also leverage a rich set of these indicators.
 - **Trading Signals**: Automated buy/sell/neutral signals based on technical analysis
 - **Support & Resistance**: Automatic identification of key price levels
 - **Fibonacci Retracement**: Calculate and display Fibonacci levels
@@ -57,11 +57,12 @@ Visit the live application: [Enhanced Stock Tracker](https://your-app-name.strea
 - **Multiple Alert Types**: Support for various alert conditions
 
 ### 🎯 AI-Powered Predictions
-- **Machine Learning Models**: Random Forest and Linear Regression for price forecasting
-- **Customizable Timeframes**: Predict prices 1-90 days into the future
-- **Model Accuracy Metrics**: MAE, RMSE, and performance indicators
-- **Visual Predictions**: Interactive charts showing predicted vs historical prices
-- **Prediction Export**: Download predictions as CSV data
+- **Machine Learning Models**: Utilizes Random Forest, Linear Regression, and Gradient Boosting Regressor for price forecasting.
+- **Enhanced Feature Engineering**: Models are trained using a comprehensive set of features, including various technical indicators, for improved accuracy.
+- **Customizable Timeframes**: Predict prices 1-90 days into the future.
+- **Model Accuracy Metrics**: MAE, RMSE, and performance indicators are displayed.
+- **Visual Predictions**: Interactive charts showing predicted vs historical prices.
+- **Prediction Export**: Download predictions as CSV data.
 
 ### 🔐 User Management
 - **Secure Authentication**: Login system with user profiles
@@ -79,7 +80,7 @@ Visit the live application: [Enhanced Stock Tracker](https://your-app-name.strea
 ## 🛠️ Technologies Used
 
 - **Streamlit** - Web application framework
-- **Yahoo Finance API** - Stock data source
+- **Yahoo Finance API (yfinance)** - Stock data source
 - **Plotly** - Interactive visualizations
 - **scikit-learn** - Machine learning models
 - **SQLite** - Database for data persistence
@@ -94,7 +95,7 @@ StockTracker/
 ├── src/
 │   └── stock_tracker/
 │       ├── __init__.py
-│       ├── main.py                 # Original Streamlit app
+│       ├── main.py                 # Original Streamlit app (references PredictionService)
 │       ├── config/
 │       │   ├── __init__.py
 │       │   ├── auth.py             # Authentication system
@@ -105,7 +106,8 @@ StockTracker/
 │       │   └── database.py         # Database management
 │       ├── services/
 │       │   ├── __init__.py
-│       │   └── email_service.py    # Email notifications
+│       │   ├── email_service.py    # Email notifications
+│       │   └── prediction_service.py    # Core logic for training and generating model-based price predictions
 │       ├── utils/
 │       │   ├── __init__.py
 │       │   ├── technical_analysis.py    # Technical indicators
@@ -119,13 +121,14 @@ StockTracker/
 │   ├── test_technical_analysis.py # Technical analysis tests
 │   ├── test_portfolio.py          # Portfolio tests
 │   ├── test_email_service.py      # Email service tests
+│   ├── test_prediction_service.py # Prediction service tests
 │   └── fixtures/                  # Test data fixtures
 ├── data/
 │   ├── stocks.db                  # SQLite database
 │   └── users.json                 # User data
 ├── docs/                          # Documentation
-├── enhanced_app.py                # Enhanced Streamlit application
-├── app.py                         # Original application
+├── enhanced_app.py                # Enhanced Streamlit application (references PredictionService)
+├── app.py                         # Original application (deprecated or simplified)
 ├── auth.py                        # Authentication module
 ├── run_tests.py                   # Test runner
 ├── requirements.txt               # Dependencies
@@ -162,9 +165,9 @@ pip install -r requirements.txt
 streamlit run enhanced_app.py
 ```
 
-5. **Or run the original application:**
+5. **Or run the original application (if still maintained):**
 ```bash
-streamlit run app.py
+streamlit run src/stock_tracker/main.py
 ```
 
 6. **Open your browser to:** `http://localhost:8501`
@@ -175,18 +178,18 @@ Run the comprehensive test suite:
 
 ```bash
 # Verify everything works (no API keys required)
-python verify_setup.py
+# python verify_setup.py # (If this script exists)
 
-# Run all tests
-python run_tests.py
+# Run all tests (assuming pytest or unittest setup)
+# Example using pytest:
+pytest tests/
+
+# Example using unittest:
+python -m unittest discover tests
 
 # Run tests with coverage report
-python run_tests.py --coverage
-
-# Run specific test modules
-python -m pytest tests/test_database.py -v
-python -m pytest tests/test_technical_analysis.py -v
-python -m pytest tests/test_portfolio.py -v
+# coverage run -m pytest tests/
+# coverage report
 ```
 
 ## 🛠️ Troubleshooting
@@ -197,12 +200,13 @@ python -m pytest tests/test_portfolio.py -v
 ```bash
 # Make sure you're in the correct directory and dependencies are installed
 pip install -r requirements.txt
+# Ensure your PYTHONPATH is set correctly if running scripts from subdirectories or if src is not automatically discoverable.
 ```
 
 **❓ "No data available" for stocks**
 ```bash
 # Test if Yahoo Finance is accessible
-python verify_setup.py
+# (Consider adding a small script to test yfinance directly if verify_setup.py is not present)
 ```
 
 **❓ Email alerts not working**
@@ -281,7 +285,8 @@ This application uses **Yahoo Finance (yfinance)** which provides free stock dat
 
 #### AI Predictions
 - Machine learning price forecasting
-- Multiple model options (Random Forest, Linear Regression)
+- Multiple model options (Random Forest, Linear Regression, Gradient Boosting Regressor)
+- Enhanced feature engineering using technical indicators.
 - Customizable prediction timeframes
 - Model accuracy metrics
 
@@ -293,12 +298,12 @@ This app is deployed on Streamlit Community Cloud. To deploy your own version:
 2. Go to [share.streamlit.io](https://share.streamlit.io)
 3. Connect your GitHub account
 4. Select your forked repository
-5. Set the main file path to `enhanced_app.py` (or `app.py` for basic version)
+5. Set the main file path to `enhanced_app.py`
 6. Deploy!
 
 **No API keys required!** The app uses Yahoo Finance which provides free data.
 
-## 🔧 Configuration
+## 🔧 Configuration (Reiteration)
 
 The app uses environment variables for sensitive data. Create a `.streamlit/secrets.toml` file for local development (optional):
 
@@ -347,3 +352,4 @@ This tool is for informational purposes only and should not be considered as fin
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
