@@ -7,3 +7,16 @@ enableXsrfProtection = false
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+primaryColor="#22A7F0" # A clear, vibrant blue
+backgroundColor="#0E1117" # Dark background
+secondaryBackgroundColor="#1C202D" # Slightly lighter dark for elements
+textColor="#FAFAFA" # Light text for dark background
+font="sans serif" # Or "serif", "monospace"
+
+# Optional: You can also set specific widget colors if needed
+# For example, to make buttons match the primary color:
+# buttonBackgroundColor = "#22A7F0"
+# buttonTextColor = "#FFFFFF"
+```
