@@ -30,63 +30,153 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for enhanced styling
+# Modern, Clean UI Styling
 st.markdown("""
 <style>
-    /* Sidebar styling */
-    .css-1d391kg {
-        background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
-    }
-    
-    /* Main content area */
-    .css-18e3th9 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    /* Buttons styling */
-    .stButton > button {
-        background: linear-gradient(45deg, #ff6b6b, #ffa726);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    
-    /* Selectbox styling */
-    .stSelectbox > div > div {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 8px;
-    }
-    
-    /* Metric cards */
-    .metric-card {
-        background: rgba(255,255,255,0.1);
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.2);
-        backdrop-filter: blur(10px);
-    }
-    
-    /* Sidebar divider */
-    .sidebar-divider {
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        margin: 1rem 0;
-    }
-    
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
+    /* Main app styling */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+        padding: 1rem;
+    }
+    
+    /* Clean card styling */
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
+        margin-bottom: 1rem;
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Sidebar navigation */
+    .nav-item {
+        background: rgba(255,255,255,0.1);
+        margin: 0.5rem 0;
+        border-radius: 8px;
+        padding: 0.8rem;
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-item:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(5px);
+    }
+    
+    /* Input styling */
+    .stTextInput > div > div > input {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 0.75rem;
+        font-size: 14px;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    /* Selectbox styling */
+    .stSelectbox > div > div {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+    }
+    
+    /* Metric styling */
+    .metric-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: #667eea;
+        color: white;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        font-weight: 600;
+    }
+    
+    /* Alert styling */
+    .stAlert {
+        border-radius: 8px;
+        border: none;
+        padding: 1rem;
+    }
+    
+    .stSuccess {
+        background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+        color: white;
+    }
+    
+    .stError {
+        background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+        color: white;
+    }
+    
+    .stInfo {
+        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    
+    /* Dataframe styling */
+    .dataframe {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -119,251 +209,376 @@ if not st.session_state.authenticated:
     
     st.stop()
 
-# Main application
-st.title("📈 Enhanced Stock Tracker")
-st.markdown("Comprehensive stock analysis with portfolio management, alerts, and advanced technical indicators")
-st.success("🚀 **Ready to use!** No API keys or configuration required - just start analyzing stocks!")
-
-# Show user profile in sidebar
-show_user_profile(auth_system)
-
-# Enhanced navigation section
-st.sidebar.markdown("""
-<div style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%); 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-    <h3 style="color: white; margin: 0; text-align: center;">
-        🧭 Navigation
-    </h3>
-</div>
-""", unsafe_allow_html=True)
-
-# Create navigation with custom styling
-navigation_options = [
-    ("🏠", "Dashboard", "Your personal stock tracking hub"),
-    ("📈", "Stock Analysis", "Analyze individual stocks"),
-    ("💼", "Portfolio", "Manage your investments"),
-    ("🔔", "Alerts", "Set up price notifications"),
-    ("📊", "Technical Analysis", "Advanced charting tools"),
-    ("🎯", "Price Prediction", "AI-powered forecasting")
-]
-
-# Create a more visual navigation
-for emoji, title, description in navigation_options:
-    if st.sidebar.button(
-        f"{emoji} {title}", 
-        key=f"nav_{title.lower().replace(' ', '_')}", 
-        use_container_width=True,
-        help=description
-    ):
-        st.session_state.current_page = f"{emoji} {title}"
-
-# Use session state for page selection
+# Initialize page if not set
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "🏠 Dashboard"
 
+# Get current page
 page = st.session_state.current_page
 
-# Quick actions section
-st.sidebar.markdown("""
-<div style="background: rgba(255,255,255,0.05); 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 20px 0;">
-    <h5 style="margin: 0 0 15px 0; color: #333;">⚡ Quick Actions</h5>
+# Modern main title with gradient
+st.markdown("""
+<div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); 
+            padding: 2rem; 
+            border-radius: 12px; 
+            margin-bottom: 2rem;
+            text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 2.5rem; font-weight: 700;">
+        📈 Stock Tracker Pro
+    </h1>
+    <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+        Professional stock analysis with AI-powered insights
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
-# Quick stock search
-with st.sidebar.expander("🔍 Quick Stock Search", expanded=False):
-    quick_symbol = st.text_input("Enter stock symbol", placeholder="e.g., AAPL, GOOGL")
-    if quick_symbol:
-        try:
-            import yfinance as yf
-            ticker = yf.Ticker(quick_symbol.upper())
-            info = ticker.info
-            current_price = info.get('currentPrice', 'N/A')
-            company_name = info.get('longName', quick_symbol.upper())
-            
-            st.markdown(f"""
-            <div style="background: rgba(76, 175, 80, 0.1); 
-                        padding: 10px; 
-                        border-radius: 8px; 
-                        margin: 10px 0;">
-                <strong>{company_name}</strong><br>
-                <span style="font-size: 18px; color: #4CAF50;">${current_price}</span>
+# Clean, Modern Sidebar
+with st.sidebar:
+    # User profile section
+    st.markdown("### 👤 User Profile")
+    user_info = auth_system.get_user_info(st.session_state.username)
+    if user_info:
+        st.markdown(f"""
+        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="color: white; font-size: 16px; font-weight: 600;">Hello, {st.session_state.username}! 👋</div>
+            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 0.5rem;">
+                � {user_info.get('email', 'N/A')}<br>
+                📅 Member since {user_info.get('created_at', 'N/A')[:10]}
             </div>
-            """, unsafe_allow_html=True)
-            
-            if st.button(f"Analyze {quick_symbol.upper()}", key="quick_analyze"):
-                st.session_state.current_page = "📈 Stock Analysis"
-                st.session_state.quick_symbol = quick_symbol.upper()
-                st.rerun()
-        except Exception as e:
-            st.error(f"Error fetching {quick_symbol}: {str(e)}")
-
-# Popular stocks section
-st.sidebar.markdown("""
-<div style="background: rgba(255,255,255,0.05); 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 20px 0;">
-    <h5 style="margin: 0 0 15px 0; color: #333;">🔥 Popular Stocks</h5>
-</div>
-""", unsafe_allow_html=True)
-
-popular_stocks = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "META"]
-cols = st.sidebar.columns(3)
-for i, stock in enumerate(popular_stocks):
-    with cols[i % 3]:
-        if st.button(stock, key=f"popular_{stock}", use_container_width=True):
-            st.session_state.current_page = "📈 Stock Analysis"
-            st.session_state.quick_symbol = stock
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Navigation
+    st.markdown("### 🧭 Navigation")
+    nav_options = [
+        ("🏠", "Dashboard"),
+        ("�", "Stock Analysis"),
+        ("💼", "Portfolio"),
+        ("🔔", "Alerts"),
+        ("�", "Technical Analysis"),
+        ("🎯", "Price Prediction")
+    ]
+    
+    for icon, name in nav_options:
+        if st.button(f"{icon} {name}", key=f"nav_{name}", use_container_width=True):
+            st.session_state.current_page = f"{icon} {name}"
             st.rerun()
+    
+    st.markdown("---")
+    
+    # Quick stock lookup
+    st.markdown("### 🔍 Quick Stock Lookup")
+    with st.container():
+        symbol = st.text_input("Enter Symbol", placeholder="e.g., AAPL", label_visibility="collapsed")
+        if symbol:
+            try:
+                ticker = yf.Ticker(symbol.upper())
+                info = ticker.info
+                price = info.get('currentPrice', 'N/A')
+                name = info.get('longName', symbol.upper())
+                
+                st.markdown(f"""
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <div style="color: white; font-weight: 600; font-size: 14px;">{name[:30]}</div>
+                    <div style="color: #4CAF50; font-size: 18px; font-weight: 700;">${price}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if st.button(f"Analyze {symbol.upper()}", use_container_width=True):
+                    st.session_state.current_page = "� Stock Analysis"
+                    st.session_state.selected_symbol = symbol.upper()
+                    st.rerun()
+            except:
+                st.error("Symbol not found")
+    
+    st.markdown("---")
+    
+    # Popular stocks
+    st.markdown("### 🔥 Popular Stocks")
+    popular = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META"]
+    
+    cols = st.columns(2)
+    for i, stock in enumerate(popular):
+        with cols[i % 2]:
+            if st.button(stock, key=f"pop_{stock}", use_container_width=True):
+                st.session_state.current_page = "� Stock Analysis"
+                st.session_state.selected_symbol = stock
+                st.rerun()
+    
+    st.markdown("---")
+    
+    # Quick actions
+    st.markdown("### ⚡ Quick Actions")
+    if st.button("🔔 Check Alerts", use_container_width=True):
+        alerts = alert_system.get_user_alerts(st.session_state.username)
+        if alerts:
+            st.success(f"✅ {len(alerts)} active alerts")
+        else:
+            st.info("📬 No active alerts")
+    
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.username = None
+        st.rerun()
 
 # Initialize user portfolio
 user_portfolio = Portfolio(st.session_state.username, db)
 
 # Page routing
 if page == "🏠 Dashboard":
-    st.header("Dashboard")
+    st.markdown("## 📊 Dashboard Overview")
     
-    col1, col2, col3 = st.columns(3)
+    # Portfolio metrics with improved styling
+    portfolio_value = user_portfolio.calculate_portfolio_value()
+    active_alerts = alert_system.get_user_alerts(st.session_state.username)
+    analysis_history = auth_system.get_analysis_history(st.session_state.username)
+    
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        # Portfolio summary
-        portfolio_value = user_portfolio.calculate_portfolio_value()
-        st.metric(
-            "Portfolio Value", 
-            f"${portfolio_value['total_value']:,.2f}",
-            delta=f"${portfolio_value['total_gain_loss']:,.2f}"
-        )
+        st.markdown(f"""
+        <div class="metric-card">
+            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                <div style="background: #667eea; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 0.75rem;">💰</div>
+                <div style="font-size: 14px; color: #666; font-weight: 600;">PORTFOLIO VALUE</div>
+            </div>
+            <div style="font-size: 28px; font-weight: 700; color: #2c3e50;">${portfolio_value['total_value']:,.2f}</div>
+            <div style="color: {'#27ae60' if portfolio_value['total_gain_loss'] >= 0 else '#e74c3c'}; font-size: 14px; font-weight: 600;">
+                {'+' if portfolio_value['total_gain_loss'] >= 0 else ''}${portfolio_value['total_gain_loss']:,.2f}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        # Active alerts count
-        active_alerts = alert_system.get_user_alerts(st.session_state.username)
-        st.metric("Active Alerts", len(active_alerts))
+        st.markdown(f"""
+        <div class="metric-card">
+            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                <div style="background: #2ecc71; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 0.75rem;">📈</div>
+                <div style="font-size: 14px; color: #666; font-weight: 600;">RETURN %</div>
+            </div>
+            <div style="font-size: 28px; font-weight: 700; color: {'#27ae60' if portfolio_value['total_gain_loss_percent'] >= 0 else '#e74c3c'};">
+                {'+' if portfolio_value['total_gain_loss_percent'] >= 0 else ''}{portfolio_value['total_gain_loss_percent']:.2f}%
+            </div>
+            <div style="color: #7f8c8d; font-size: 14px;">Total return</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
-        # Analysis history count
-        analysis_history = auth_system.get_analysis_history(st.session_state.username)
-        st.metric("Analyses Performed", len(analysis_history))
+        st.markdown(f"""
+        <div class="metric-card">
+            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                <div style="background: #f39c12; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 0.75rem;">🔔</div>
+                <div style="font-size: 14px; color: #666; font-weight: 600;">ACTIVE ALERTS</div>
+            </div>
+            <div style="font-size: 28px; font-weight: 700; color: #2c3e50;">{len(active_alerts)}</div>
+            <div style="color: #7f8c8d; font-size: 14px;">Monitoring stocks</div>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # Recent activity
+    with col4:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                <div style="background: #9b59b6; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 0.75rem;">📊</div>
+                <div style="font-size: 14px; color: #666; font-weight: 600;">ANALYSES</div>
+            </div>
+            <div style="font-size: 28px; font-weight: 700; color: #2c3e50;">{len(analysis_history)}</div>
+            <div style="color: #7f8c8d; font-size: 14px;">Completed</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Recent activity section
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📊 Recent Analysis")
+        st.markdown("### 📊 Recent Analysis")
         if analysis_history:
             recent_analysis = analysis_history[-5:]
-            for analysis in reversed(recent_analysis):
-                with st.expander(f"{analysis['symbol']} - {analysis['analysis_type']}"):
-                    st.write(f"**Date:** {analysis['timestamp']}")
-                    st.write(f"**Symbol:** {analysis['symbol']}")
-                    st.write(f"**Type:** {analysis['analysis_type']}")
+            for i, analysis in enumerate(reversed(recent_analysis)):
+                st.markdown(f"""
+                <div style="background: white; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; border-left: 4px solid #667eea; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #2c3e50;">{analysis['symbol']}</div>
+                            <div style="color: #7f8c8d; font-size: 12px;">{analysis['analysis_type']}</div>
+                        </div>
+                        <div style="color: #95a5a6; font-size: 11px;">{analysis['timestamp'][:10]}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            st.info("No recent analysis found. Start by analyzing some stocks!")
+            st.info("🚀 No recent analysis. Start by analyzing some stocks!")
     
     with col2:
-        st.subheader("💼 Portfolio Overview")
+        st.markdown("### 💼 Portfolio Overview")
         holdings = user_portfolio.get_detailed_holdings()
         if holdings:
-            # Create portfolio pie chart
+            # Portfolio pie chart
             symbols = [h['symbol'] for h in holdings]
             values = [h['value'] for h in holdings]
             
             fig = px.pie(
                 values=values, 
                 names=symbols, 
-                title="Portfolio Allocation"
+                title="Portfolio Allocation",
+                color_discrete_sequence=px.colors.qualitative.Set3
+            )
+            fig.update_layout(
+                height=350,
+                showlegend=True,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.info("Your portfolio is empty. Add some holdings to get started!")
-
-elif page == "📈 Stock Analysis":
-    st.header("Stock Analysis")
+            st.info("💼 Your portfolio is empty. Add some holdings to get started!")
     
-    # Stock input with quick symbol support
-    col1, col2 = st.columns([3, 1])
+    # Quick actions
+    st.markdown("### ⚡ Quick Actions")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
     with col1:
-        # Use quick symbol if available
-        default_symbol = st.session_state.get('quick_symbol', 'AAPL')
-        symbol = st.text_input("Enter Stock Symbol", value=default_symbol).upper()
-        # Clear quick symbol after use
-        if 'quick_symbol' in st.session_state:
-            del st.session_state.quick_symbol
-    with col2:
-        period = st.selectbox("Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"])
+        if st.button("📊 Analyze Stock", use_container_width=True):
+            st.session_state.current_page = "📊 Stock Analysis"
+            st.rerun()
     
-    if st.button("Analyze Stock", type="primary") or default_symbol != 'AAPL':
+    with col2:
+        if st.button("💼 Manage Portfolio", use_container_width=True):
+            st.session_state.current_page = "💼 Portfolio"
+            st.rerun()
+    
+    with col3:
+        if st.button("🔔 Set Alert", use_container_width=True):
+            st.session_state.current_page = "🔔 Alerts"
+            st.rerun()
+    
+    with col4:
+        if st.button("🎯 Price Prediction", use_container_width=True):
+            st.session_state.current_page = "🎯 Price Prediction"
+            st.rerun()
+
+elif page == "📊 Stock Analysis":
+    st.markdown("## 📊 Stock Analysis")
+    
+    # Stock input section with modern styling
+    st.markdown("""
+    <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([2, 1, 1])
+    with col1:
+        # Use selected symbol if available from sidebar
+        default_symbol = st.session_state.get('selected_symbol', 'AAPL')
+        symbol = st.text_input("📈 Enter Stock Symbol", value=default_symbol, placeholder="e.g., AAPL, GOOGL, MSFT").upper()
+        # Clear selected symbol after use
+        if 'selected_symbol' in st.session_state:
+            del st.session_state.selected_symbol
+    
+    with col2:
+        period = st.selectbox("📅 Time Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=2)
+    
+    with col3:
+        analyze_btn = st.button("🔍 Analyze Stock", type="primary", use_container_width=True)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    if analyze_btn or (symbol and symbol != 'AAPL'):
         try:
-            # Fetch stock data
-            with st.spinner(f"Fetching data for {symbol}..."):
-                ticker = yf.Ticker(symbol)
-                hist_data = ticker.history(period=period)
-                info = ticker.info
-                
-                # Add stock to database
-                db.add_stock(
+            # Fetch stock data with progress
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            status_text.text("🔍 Fetching stock data...")
+            progress_bar.progress(25)
+            
+            ticker = yf.Ticker(symbol)
+            hist_data = ticker.history(period=period)
+            info = ticker.info
+            
+            progress_bar.progress(50)
+            status_text.text("💾 Storing data...")
+            
+            # Add stock to database
+            db.add_stock(
+                symbol=symbol,
+                name=info.get('longName', symbol),
+                exchange=info.get('exchange'),
+                sector=info.get('sector'),
+                industry=info.get('industry')
+            )
+            
+            progress_bar.progress(75)
+            status_text.text("📊 Running analysis...")
+            
+            # Store historical data
+            for date_idx, row in hist_data.iterrows():
+                db.add_stock_data(
                     symbol=symbol,
-                    name=info.get('longName', symbol),
-                    exchange=info.get('exchange'),
-                    sector=info.get('sector'),
-                    industry=info.get('industry')
+                    date=date_idx.strftime('%Y-%m-%d'),
+                    open_price=row['Open'],
+                    high_price=row['High'],
+                    low_price=row['Low'],
+                    close_price=row['Close'],
+                    adj_close_price=row['Close'],
+                    volume=int(row['Volume'])
                 )
-                
-                # Store historical data in database
-                for date_idx, row in hist_data.iterrows():
-                    db.add_stock_data(
-                        symbol=symbol,
-                        date=date_idx.strftime('%Y-%m-%d'),
-                        open_price=row['Open'],
-                        high_price=row['High'],
-                        low_price=row['Low'],
-                        close_price=row['Close'],
-                        adj_close_price=row['Close'],  # Assuming adj close = close for simplicity
-                        volume=int(row['Volume'])
-                    )
             
-            # Display basic info
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                st.subheader(f"{info.get('longName', symbol)} ({symbol})")
-                st.write(f"**Sector:** {info.get('sector', 'N/A')}")
-                st.write(f"**Industry:** {info.get('industry', 'N/A')}")
-                st.write(f"**Market Cap:** ${info.get('marketCap', 0):,}")
+            progress_bar.progress(100)
+            status_text.text("✅ Analysis complete!")
             
-            with col2:
-                current_price = hist_data['Close'].iloc[-1]
-                prev_close = hist_data['Close'].iloc[-2] if len(hist_data) > 1 else current_price
-                change = current_price - prev_close
-                change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
-                
-                st.metric(
-                    "Current Price",
-                    f"${current_price:.2f}",
-                    delta=f"{change_pct:+.2f}%"
-                )
+            # Clear progress indicators
+            progress_bar.empty()
+            status_text.empty()
+            
+            # Company info header
+            current_price = hist_data['Close'].iloc[-1]
+            prev_close = hist_data['Close'].iloc[-2] if len(hist_data) > 1 else current_price
+            change = current_price - prev_close
+            change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
+            
+            st.markdown(f"""
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="margin: 0; color: #2c3e50;">{info.get('longName', symbol)} ({symbol})</h2>
+                        <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                            <div><strong>Sector:</strong> {info.get('sector', 'N/A')}</div>
+                            <div><strong>Industry:</strong> {info.get('industry', 'N/A')}</div>
+                            <div><strong>Market Cap:</strong> ${info.get('marketCap', 0):,}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 2rem; font-weight: 700; color: #2c3e50;">${current_price:.2f}</div>
+                        <div style="font-size: 1.2rem; color: {'#27ae60' if change >= 0 else '#e74c3c'}; font-weight: 600;">
+                            {'+' if change >= 0 else ''}{change:.2f} ({change_pct:+.2f}%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             
             # Technical Analysis
-            st.subheader("🔍 Technical Analysis")
             analysis = ta.analyze_stock(hist_data)
             signals = ta.generate_signals(analysis)
             
-            # Display signals
             if signals:
-                st.write("**Trading Signals:**")
+                st.markdown("### 🎯 Trading Signals")
+                
                 signal_cols = st.columns(len(signals))
                 for i, (signal_type, signal_value) in enumerate(signals.items()):
                     with signal_cols[i]:
-                        color = "green" if "BUY" in signal_value else "red" if "SELL" in signal_value else "gray"
-                        st.markdown(f"**{signal_type}:** :{color}[{signal_value}]")
+                        color = "#27ae60" if "BUY" in signal_value else "#e74c3c" if "SELL" in signal_value else "#95a5a6"
+                        st.markdown(f"""
+                        <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; border-left: 4px solid {color}; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-weight: 600; color: #2c3e50; margin-bottom: 0.5rem;">{signal_type}</div>
+                            <div style="color: {color}; font-weight: 700; font-size: 1.1rem;">{signal_value}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
             
-            # Price chart with technical indicators
-            st.subheader("📊 Price Chart with Technical Indicators")
+            # Price chart
+            st.markdown("### 📈 Price Chart with Technical Indicators")
             
             fig = go.Figure()
             
@@ -374,17 +589,19 @@ elif page == "📈 Stock Analysis":
                 high=hist_data['High'],
                 low=hist_data['Low'],
                 close=hist_data['Close'],
-                name=symbol
+                name=symbol,
+                increasing_line_color='#27ae60',
+                decreasing_line_color='#e74c3c'
             ))
             
-            # Add moving averages
+            # Add technical indicators
             if 'SMA_20' in analysis:
                 fig.add_trace(go.Scatter(
                     x=hist_data.index,
                     y=analysis['SMA_20'],
                     mode='lines',
                     name='SMA 20',
-                    line=dict(color='orange')
+                    line=dict(color='#f39c12', width=2)
                 ))
             
             if 'SMA_50' in analysis:
@@ -393,17 +610,17 @@ elif page == "📈 Stock Analysis":
                     y=analysis['SMA_50'],
                     mode='lines',
                     name='SMA 50',
-                    line=dict(color='blue')
+                    line=dict(color='#3498db', width=2)
                 ))
             
-            # Add Bollinger Bands
+            # Bollinger Bands
             if all(key in analysis for key in ['BB_Upper', 'BB_Lower']):
                 fig.add_trace(go.Scatter(
                     x=hist_data.index,
                     y=analysis['BB_Upper'],
                     mode='lines',
                     name='BB Upper',
-                    line=dict(color='gray', dash='dash'),
+                    line=dict(color='#95a5a6', dash='dash', width=1),
                     showlegend=False
                 ))
                 fig.add_trace(go.Scatter(
@@ -411,60 +628,100 @@ elif page == "📈 Stock Analysis":
                     y=analysis['BB_Lower'],
                     mode='lines',
                     name='BB Lower',
-                    line=dict(color='gray', dash='dash'),
+                    line=dict(color='#95a5a6', dash='dash', width=1),
                     fill='tonexty',
-                    fillcolor='rgba(128,128,128,0.1)'
+                    fillcolor='rgba(149, 165, 166, 0.1)'
                 ))
             
             fig.update_layout(
-                title=f"{symbol} Price Chart with Technical Indicators",
+                title=f"{symbol} - Technical Analysis",
                 yaxis_title="Price ($)",
                 xaxis_title="Date",
-                height=600
+                height=600,
+                template="plotly_white",
+                showlegend=True,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             
             st.plotly_chart(fig, use_container_width=True)
             
-            # Additional technical indicators
-            col1, col2 = st.columns(2)
+            # Additional indicators in tabs
+            tab1, tab2 = st.tabs(["📊 Momentum Indicators", "📈 Volume Analysis"])
             
-            with col1:
-                # RSI
-                if 'RSI' in analysis:
-                    st.subheader("RSI (Relative Strength Index)")
-                    rsi_fig = go.Figure()
-                    rsi_fig.add_trace(go.Scatter(
-                        x=hist_data.index,
-                        y=analysis['RSI'],
-                        mode='lines',
-                        name='RSI'
-                    ))
-                    rsi_fig.add_hline(y=70, line_dash="dash", line_color="red", annotation_text="Overbought")
-                    rsi_fig.add_hline(y=30, line_dash="dash", line_color="green", annotation_text="Oversold")
-                    rsi_fig.update_layout(height=300)
-                    st.plotly_chart(rsi_fig, use_container_width=True)
+            with tab1:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    if 'RSI' in analysis:
+                        fig_rsi = go.Figure()
+                        fig_rsi.add_trace(go.Scatter(
+                            x=hist_data.index,
+                            y=analysis['RSI'],
+                            mode='lines',
+                            name='RSI',
+                            line=dict(color='#9b59b6', width=2)
+                        ))
+                        fig_rsi.add_hline(y=70, line_dash="dash", line_color="#e74c3c", annotation_text="Overbought")
+                        fig_rsi.add_hline(y=30, line_dash="dash", line_color="#27ae60", annotation_text="Oversold")
+                        fig_rsi.update_layout(
+                            title="RSI (Relative Strength Index)",
+                            height=350,
+                            template="plotly_white",
+                            yaxis=dict(range=[0, 100])
+                        )
+                        st.plotly_chart(fig_rsi, use_container_width=True)
+                
+                with col2:
+                    if all(key in analysis for key in ['MACD', 'MACD_Signal']):
+                        fig_macd = go.Figure()
+                        fig_macd.add_trace(go.Scatter(
+                            x=hist_data.index,
+                            y=analysis['MACD'],
+                            mode='lines',
+                            name='MACD',
+                            line=dict(color='#2c3e50', width=2)
+                        ))
+                        fig_macd.add_trace(go.Scatter(
+                            x=hist_data.index,
+                            y=analysis['MACD_Signal'],
+                            mode='lines',
+                            name='Signal',
+                            line=dict(color='#e74c3c', width=2)
+                        ))
+                        if 'MACD_Histogram' in analysis:
+                            fig_macd.add_trace(go.Bar(
+                                x=hist_data.index,
+                                y=analysis['MACD_Histogram'],
+                                name='Histogram',
+                                marker_color='#34495e'
+                            ))
+                        fig_macd.update_layout(
+                            title="MACD",
+                            height=350,
+                            template="plotly_white"
+                        )
+                        st.plotly_chart(fig_macd, use_container_width=True)
             
-            with col2:
-                # MACD
-                if all(key in analysis for key in ['MACD', 'MACD_Signal']):
-                    st.subheader("MACD")
-                    macd_fig = go.Figure()
-                    macd_fig.add_trace(go.Scatter(
-                        x=hist_data.index,
-                        y=analysis['MACD'],
-                        mode='lines',
-                        name='MACD'
-                    ))
-                    macd_fig.add_trace(go.Scatter(
-                        x=hist_data.index,
-                        y=analysis['MACD_Signal'],
-                        mode='lines',
-                        name='Signal'
-                    ))
-                    macd_fig.update_layout(height=300)
-                    st.plotly_chart(macd_fig, use_container_width=True)
+            with tab2:
+                # Volume chart
+                fig_vol = go.Figure()
+                fig_vol.add_trace(go.Bar(
+                    x=hist_data.index,
+                    y=hist_data['Volume'],
+                    name='Volume',
+                    marker_color='#3498db'
+                ))
+                
+                fig_vol.update_layout(
+                    title="Volume Analysis",
+                    yaxis_title="Volume",
+                    xaxis_title="Date",
+                    height=350,
+                    template="plotly_white"
+                )
+                st.plotly_chart(fig_vol, use_container_width=True)
             
-            # Save analysis to database
+            # Save analysis
             db.save_analysis(
                 username=st.session_state.username,
                 symbol=symbol,
@@ -473,11 +730,11 @@ elif page == "📈 Stock Analysis":
                 results=json.dumps(signals)
             )
             
-            # Record in auth system (for compatibility)
             auth_system.add_analysis_history(st.session_state.username, symbol, "Technical Analysis")
             
         except Exception as e:
-            st.error(f"Error analyzing {symbol}: {str(e)}")
+            st.error(f"❌ Error analyzing {symbol}: {str(e)}")
+            st.info("💡 Please check if the symbol is correct and try again.")
 
 elif page == "💼 Portfolio":
     st.header("Portfolio Management")
@@ -1043,53 +1300,31 @@ st.markdown("""
 *Disclaimer: This tool is for educational and informational purposes only. Not financial advice.*
 """)
 
-# Check alerts in background (simplified)
-col1, col2 = st.sidebar.columns([1, 1])
-with col1:
-    if st.button("🔍 Check Alerts", use_container_width=True):
-        with st.spinner("Checking alerts..."):
-            triggered = alert_system.check_alerts()
-            if triggered:
-                st.sidebar.success(f"✅ {len(triggered)} alerts triggered!")
-            else:
-                st.sidebar.info("📬 No alerts triggered")
+# Quick actions
+if st.sidebar.button("🔍 Check Alerts", use_container_width=True):
+    with st.spinner("Checking alerts..."):
+        triggered = alert_system.check_alerts()
+        if triggered:
+            st.sidebar.success(f"✅ {len(triggered)} alerts triggered!")
+        else:
+            st.sidebar.info("📬 No alerts triggered")
 
-with col2:
-    if st.button("💡 Quick Tips", use_container_width=True):
-        tips = [
-            "💰 Diversify your portfolio across sectors",
-            "📊 Use technical indicators for better timing",
-            "🎯 Set realistic price targets",
-            "⏰ Review your alerts regularly",
-            "📈 Track long-term trends"
-        ]
-        import random
-        st.sidebar.info(random.choice(tips))
+if st.sidebar.button("💡 Quick Tips", use_container_width=True):
+    tips = [
+        "💰 Diversify your portfolio across sectors",
+        "📊 Use technical indicators for better timing",
+        "🎯 Set realistic price targets",
+        "⏰ Review your alerts regularly",
+        "📈 Track long-term trends"
+    ]
+    import random
+    st.sidebar.info(random.choice(tips))
 
-# Market status indicator
+# Simple footer
+st.sidebar.markdown("---")
 st.sidebar.markdown("""
-<div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 20px 0;
-            text-align: center;">
-    <h5 style="color: white; margin: 0;">📊 Market Status</h5>
-    <p style="color: white; margin: 5px 0; font-size: 14px;">
-        Live data from Yahoo Finance
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
-# Footer with app info
-st.sidebar.markdown("""
-<div style="background: rgba(255,255,255,0.02); 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="text-align: center; color: #666; font-size: 12px; margin: 0;">
-        📈 Stock Tracker v2.0<br>
-        Built with ❤️ using Streamlit
-    </p>
+<div style="text-align: center; color: #666; font-size: 12px; margin: 20px 0;">
+    📈 Stock Tracker v2.0<br>
+    Built with Streamlit
 </div>
 """, unsafe_allow_html=True)
