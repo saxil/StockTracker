@@ -13,7 +13,7 @@ cd StockTracker
 pip install -r requirements.txt
 
 # 3. Run the application
-streamlit run enhanced_app.py
+streamlit run app.py
 
 # 4. Open your browser to http://localhost:8501
 ```
@@ -124,7 +124,7 @@ StockTracker/
 │   ├── stocks.db                  # SQLite database
 │   └── users.json                 # User data
 ├── docs/                          # Documentation
-├── enhanced_app.py                # Enhanced Streamlit application
+├── app.py                         # Enhanced Streamlit application
 ├── app.py                         # Original application
 ├── auth.py                        # Authentication module
 ├── run_tests.py                   # Test runner
@@ -159,15 +159,10 @@ pip install -r requirements.txt
 
 4. **Run the enhanced application:**
 ```bash
-streamlit run enhanced_app.py
-```
-
-5. **Or run the original application:**
-```bash
 streamlit run app.py
 ```
 
-6. **Open your browser to:** `http://localhost:8501`
+6. **Open your browser to:** `http://localhost:5000`
 
 ## 🧪 Testing
 
@@ -293,7 +288,7 @@ This app is deployed on Streamlit Community Cloud. To deploy your own version:
 2. Go to [share.streamlit.io](https://share.streamlit.io)
 3. Connect your GitHub account
 4. Select your forked repository
-5. Set the main file path to `enhanced_app.py` (or `app.py` for basic version)
+5. Set the main file path to `app.py` (or `base_app.py` for basic version)
 6. Deploy!
 
 **No API keys required!** The app uses Yahoo Finance which provides free data.
