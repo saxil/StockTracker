@@ -24,12 +24,13 @@ try:
     # Import existing auth system
     from src.stock_tracker.config.auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
     
-    # Test database connection
+    # Test database connection silently
     try:
         db = Database()
-        st.success("✅ Database connection successful")
+        # Database connection successful - no need to show message
     except Exception as e:
         st.error(f"❌ Database connection failed: {str(e)}")
+        st.stop()
         
 except Exception as e:
     st.error(f"❌ Import error: {str(e)}")
