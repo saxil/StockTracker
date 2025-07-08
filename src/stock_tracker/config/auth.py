@@ -6,7 +6,7 @@ import string
 from typing import Dict, Optional
 import streamlit as st
 from datetime import datetime, timedelta
-from email_service import EmailService
+from ..services.email_service import EmailService
 
 class UserAuth:
     def __init__(self, db_file: str = "users.json"):
@@ -334,23 +334,99 @@ def logout():
     st.rerun()
 
 def show_user_profile(auth_system: UserAuth):
-    """Display user profile information"""
+    """Display enhanced user profile information"""
     user_info = auth_system.get_user_info(st.session_state.username)
     
     if user_info:
-        st.sidebar.markdown("---")
-        st.sidebar.markdown(f"**Welcome, {st.session_state.username}!**")
-        st.sidebar.markdown(f"📧 {user_info['email']}")
+        # Enhanced user profile section
+        st.sidebar.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    padding: 20px; 
+                    border-radius: 15px; 
+                    margin-bottom: 20px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <h3 style="color: white; margin: 0; text-align: center;">
+                👤 User Profile
+            </h3>
+        </div>
+        """, unsafe_allow_html=True)
         
+        # User welcome section with styling
+        st.sidebar.markdown(f"""
+        <div style="background: rgba(255,255,255,0.1); 
+                    padding: 15px; 
+                    border-radius: 10px; 
+                    margin-bottom: 15px;
+                    border: 1px solid rgba(255,255,255,0.2);">
+            <h4 style="margin: 0; color: #333;">👋 Welcome back!</h4>
+            <p style="margin: 5px 0; font-size: 18px; font-weight: bold; color: #4CAF50;">
+                {st.session_state.username}
+            </p>
+            <p style="margin: 5px 0; color: #666;">
+                📧 {user_info['email']}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Last login info with better formatting
         if user_info['last_login']:
             try:
                 last_login = datetime.fromisoformat(user_info['last_login']).strftime("%Y-%m-%d %H:%M")
-                st.sidebar.markdown(f"🕒 Last login: {last_login}")
+                st.sidebar.markdown(f"""
+                <div style="background: rgba(76, 175, 80, 0.1); 
+                            padding: 10px; 
+                            border-radius: 8px; 
+                            margin-bottom: 15px;
+                            border-left: 4px solid #4CAF50;">
+                    <small style="color: #666;">🕒 Last login: {last_login}</small>
+                </div>
+                """, unsafe_allow_html=True)
             except:
-                st.sidebar.markdown(f"🕒 Last login: {user_info['last_login']}")
+                st.sidebar.markdown(f"""
+                <div style="background: rgba(76, 175, 80, 0.1); 
+                            padding: 10px; 
+                            border-radius: 8px; 
+                            margin-bottom: 15px;
+                            border-left: 4px solid #4CAF50;">
+                    <small style="color: #666;">🕒 Last login: {user_info['last_login']}</small>
+                </div>
+                """, unsafe_allow_html=True)
         
-        if st.sidebar.button("Logout", type="secondary"):
-            logout()
+        # User stats
+        favorite_count = len(user_info.get('favorite_stocks', []))
+        analysis_count = len(user_info.get('analysis_history', []))
+        
+        st.sidebar.markdown(f"""
+        <div style="background: rgba(255,255,255,0.05); 
+                    padding: 15px; 
+                    border-radius: 10px; 
+                    margin-bottom: 15px;">
+            <h5 style="margin: 0 0 10px 0; color: #333;">📊 Quick Stats</h5>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #666;">⭐ Favorites:</span>
+                <span style="font-weight: bold; color: #FF9800;">{favorite_count}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #666;">📈 Analyses:</span>
+                <span style="font-weight: bold; color: #2196F3;">{analysis_count}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Enhanced logout button
+        col1, col2 = st.sidebar.columns([1, 1])
+        with col1:
+            if st.button("🚪 Logout", type="secondary", use_container_width=True):
+                logout()
+        with col2:
+            if st.button("⚙️ Settings", type="secondary", use_container_width=True):
+                st.sidebar.info("Settings coming soon!")
+        
+        # Separator
+        st.sidebar.markdown("""
+        <div style="border-top: 2px solid rgba(255,255,255,0.1); 
+                    margin: 20px 0;"></div>
+        """, unsafe_allow_html=True)
 
 def password_reset_form(auth_system: UserAuth):
     """Display password reset form"""

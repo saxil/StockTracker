@@ -3,7 +3,7 @@
 import yfinance as yf
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
-from .database import Database
+from ..models.database import Database
 from ..services.email_service import EmailService
 
 

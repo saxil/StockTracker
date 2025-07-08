@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Optional
 from datetime import datetime, date
 import pandas as pd
 import yfinance as yf
-from .database import Database
+from ..models.database import Database
 
 
 class Portfolio:

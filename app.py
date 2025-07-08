@@ -20,7 +20,7 @@ from src.stock_tracker.utils.portfolio import Portfolio
 from src.stock_tracker.utils.alert_system import AlertSystem
 
 # Import existing auth system
-from auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
+from src.stock_tracker.config.auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
 
 # Page configuration
 st.set_page_config(
@@ -29,6 +29,66 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Custom CSS for enhanced styling
+st.markdown("""
+<style>
+    /* Sidebar styling */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+    }
+    
+    /* Main content area */
+    .css-18e3th9 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Buttons styling */
+    .stButton > button {
+        background: linear-gradient(45deg, #ff6b6b, #ffa726);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    /* Selectbox styling */
+    .stSelectbox > div > div {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+    }
+    
+    /* Metric cards */
+    .metric-card {
+        background: rgba(255,255,255,0.1);
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Sidebar divider */
+    .sidebar-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        margin: 1rem 0;
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize systems
 @st.cache_resource
@@ -67,12 +127,101 @@ st.success("🚀 **Ready to use!** No API keys or configuration required - just 
 # Show user profile in sidebar
 show_user_profile(auth_system)
 
-# Main navigation
-st.sidebar.header("📊 Navigation")
-page = st.sidebar.selectbox(
-    "Select Page",
-    ["🏠 Dashboard", "📈 Stock Analysis", "💼 Portfolio", "🔔 Alerts", "📊 Technical Analysis", "🎯 Price Prediction"]
-)
+# Enhanced navigation section
+st.sidebar.markdown("""
+<div style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <h3 style="color: white; margin: 0; text-align: center;">
+        🧭 Navigation
+    </h3>
+</div>
+""", unsafe_allow_html=True)
+
+# Create navigation with custom styling
+navigation_options = [
+    ("🏠", "Dashboard", "Your personal stock tracking hub"),
+    ("📈", "Stock Analysis", "Analyze individual stocks"),
+    ("💼", "Portfolio", "Manage your investments"),
+    ("🔔", "Alerts", "Set up price notifications"),
+    ("📊", "Technical Analysis", "Advanced charting tools"),
+    ("🎯", "Price Prediction", "AI-powered forecasting")
+]
+
+# Create a more visual navigation
+for emoji, title, description in navigation_options:
+    if st.sidebar.button(
+        f"{emoji} {title}", 
+        key=f"nav_{title.lower().replace(' ', '_')}", 
+        use_container_width=True,
+        help=description
+    ):
+        st.session_state.current_page = f"{emoji} {title}"
+
+# Use session state for page selection
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "🏠 Dashboard"
+
+page = st.session_state.current_page
+
+# Quick actions section
+st.sidebar.markdown("""
+<div style="background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 20px 0;">
+    <h5 style="margin: 0 0 15px 0; color: #333;">⚡ Quick Actions</h5>
+</div>
+""", unsafe_allow_html=True)
+
+# Quick stock search
+with st.sidebar.expander("🔍 Quick Stock Search", expanded=False):
+    quick_symbol = st.text_input("Enter stock symbol", placeholder="e.g., AAPL, GOOGL")
+    if quick_symbol:
+        try:
+            import yfinance as yf
+            ticker = yf.Ticker(quick_symbol.upper())
+            info = ticker.info
+            current_price = info.get('currentPrice', 'N/A')
+            company_name = info.get('longName', quick_symbol.upper())
+            
+            st.markdown(f"""
+            <div style="background: rgba(76, 175, 80, 0.1); 
+                        padding: 10px; 
+                        border-radius: 8px; 
+                        margin: 10px 0;">
+                <strong>{company_name}</strong><br>
+                <span style="font-size: 18px; color: #4CAF50;">${current_price}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button(f"Analyze {quick_symbol.upper()}", key="quick_analyze"):
+                st.session_state.current_page = "📈 Stock Analysis"
+                st.session_state.quick_symbol = quick_symbol.upper()
+                st.rerun()
+        except Exception as e:
+            st.error(f"Error fetching {quick_symbol}: {str(e)}")
+
+# Popular stocks section
+st.sidebar.markdown("""
+<div style="background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 20px 0;">
+    <h5 style="margin: 0 0 15px 0; color: #333;">🔥 Popular Stocks</h5>
+</div>
+""", unsafe_allow_html=True)
+
+popular_stocks = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "META"]
+cols = st.sidebar.columns(3)
+for i, stock in enumerate(popular_stocks):
+    with cols[i % 3]:
+        if st.button(stock, key=f"popular_{stock}", use_container_width=True):
+            st.session_state.current_page = "📈 Stock Analysis"
+            st.session_state.quick_symbol = stock
+            st.rerun()
 
 # Initialize user portfolio
 user_portfolio = Portfolio(st.session_state.username, db)
@@ -137,14 +286,19 @@ if page == "🏠 Dashboard":
 elif page == "📈 Stock Analysis":
     st.header("Stock Analysis")
     
-    # Stock input
+    # Stock input with quick symbol support
     col1, col2 = st.columns([3, 1])
     with col1:
-        symbol = st.text_input("Enter Stock Symbol", value="AAPL").upper()
+        # Use quick symbol if available
+        default_symbol = st.session_state.get('quick_symbol', 'AAPL')
+        symbol = st.text_input("Enter Stock Symbol", value=default_symbol).upper()
+        # Clear quick symbol after use
+        if 'quick_symbol' in st.session_state:
+            del st.session_state.quick_symbol
     with col2:
         period = st.selectbox("Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"])
     
-    if st.button("Analyze Stock", type="primary"):
+    if st.button("Analyze Stock", type="primary") or default_symbol != 'AAPL':
         try:
             # Fetch stock data
             with st.spinner(f"Fetching data for {symbol}..."):
@@ -890,10 +1044,52 @@ st.markdown("""
 """)
 
 # Check alerts in background (simplified)
-if st.sidebar.button("🔍 Check Alerts Now"):
-    with st.spinner("Checking alerts..."):
-        triggered = alert_system.check_alerts()
-        if triggered:
-            st.sidebar.success(f"Triggered {len(triggered)} alerts!")
-        else:
-            st.sidebar.info("No alerts triggered")
+col1, col2 = st.sidebar.columns([1, 1])
+with col1:
+    if st.button("🔍 Check Alerts", use_container_width=True):
+        with st.spinner("Checking alerts..."):
+            triggered = alert_system.check_alerts()
+            if triggered:
+                st.sidebar.success(f"✅ {len(triggered)} alerts triggered!")
+            else:
+                st.sidebar.info("📬 No alerts triggered")
+
+with col2:
+    if st.button("💡 Quick Tips", use_container_width=True):
+        tips = [
+            "💰 Diversify your portfolio across sectors",
+            "📊 Use technical indicators for better timing",
+            "🎯 Set realistic price targets",
+            "⏰ Review your alerts regularly",
+            "📈 Track long-term trends"
+        ]
+        import random
+        st.sidebar.info(random.choice(tips))
+
+# Market status indicator
+st.sidebar.markdown("""
+<div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 20px 0;
+            text-align: center;">
+    <h5 style="color: white; margin: 0;">📊 Market Status</h5>
+    <p style="color: white; margin: 5px 0; font-size: 14px;">
+        Live data from Yahoo Finance
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# Footer with app info
+st.sidebar.markdown("""
+<div style="background: rgba(255,255,255,0.02); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);">
+    <p style="text-align: center; color: #666; font-size: 12px; margin: 0;">
+        📈 Stock Tracker v2.0<br>
+        Built with ❤️ using Streamlit
+    </p>
+</div>
+""", unsafe_allow_html=True)
