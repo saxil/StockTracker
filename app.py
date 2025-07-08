@@ -13,14 +13,27 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import our enhanced modules
-from src.stock_tracker.models.database import Database
-from src.stock_tracker.utils.technical_analysis import TechnicalAnalysis
-from src.stock_tracker.utils.portfolio import Portfolio
-from src.stock_tracker.utils.alert_system import AlertSystem
-
-# Import existing auth system
-from src.stock_tracker.config.auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
+# Health check for Streamlit Cloud
+try:
+    # Import our enhanced modules
+    from src.stock_tracker.models.database import Database
+    from src.stock_tracker.utils.technical_analysis import TechnicalAnalysis
+    from src.stock_tracker.utils.portfolio import Portfolio
+    from src.stock_tracker.utils.alert_system import AlertSystem
+    
+    # Import existing auth system
+    from src.stock_tracker.config.auth import UserAuth, init_session_state, login_form, signup_form, show_user_profile, password_reset_form
+    
+    # Test database connection
+    try:
+        db = Database()
+        st.success("✅ Database connection successful")
+    except Exception as e:
+        st.error(f"❌ Database connection failed: {str(e)}")
+        
+except Exception as e:
+    st.error(f"❌ Import error: {str(e)}")
+    st.stop()
 
 # Page configuration
 st.set_page_config(
